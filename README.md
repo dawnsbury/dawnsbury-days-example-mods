@@ -1,5 +1,5 @@
 ## How to install mods
-To enable one of the example mods, renamed its DLL file from `.dll-disabled` to `.dll`.
+To enable one of the example mods, rename its DLL file from `.dll-disabled` to `.dll`.
 
 To enable a mod you downloaded, add its DLL file to the CustomMods folder in your installation folder. 
 
