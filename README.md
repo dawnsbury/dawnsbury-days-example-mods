@@ -7,14 +7,43 @@ Mods don't run in any sandbox. They're executable .NET code which has full privi
 
 ## How to create a mod
 1. Create a new .NET class library project, for example using Microsoft Visual Studio.
-2. Set the platform to `x64`, platform target to `x64` and the target framework to `.net6.0-windows`.
-3. Reference the assembly `Data/Dawnsbury Days.exe` in your installation folder as an assembly reference. Make sure to reference the file that's in your Data folder. The file in the root of the installation folder is only a launcher which doesn't contain actual Dawnsbury Days code.
+2. Set the platform to `x64`, platform target to `x64` and the target framework to `net6.0-windows`.
+3. Reference the assembly `Data/Dawnsbury Days.dll` in your installation folder as an assembly reference. Make sure to reference the DLL file that's in your Data folder. The EXE file in the root of the installation folder is only a launcher which doesn't contain actual Dawnsbury Days code.
 4. In any one class in your project, add a public static method annotated with the attribute `DawnsburyDaysModMainMethodAttribute`. Dawnsbury Days will invoke that method when it starts up.
 5. Add any code you want your mod to execute on startup into that method. For example, you can use `ModManager.AddFeat(...)` to add custom feats, ancestries, etc. to the game.
 
 You can then build your project and put the output assembly .dll file into the `CustomMods` folder in the installation folder, then start Dawnsbury Days. Your mod should be loaded.
 
 It may be useful for you to set up a post-build setup that will automatically place your output assembly into the CustomMods folder for faster iteration. The file `Dawnsbury.Mod.targets` in this folder can help you with that.
+
+Or, instead of creating a .NET class library project from scratch, you can copy the project `Dawnsbury.Mods.Feats.General.ImpossibleToughness` from this folder, which is a small "Hello, world"-style project, and start by modifying it.
+
+## Dawnsbury Days solution architecture
+
+**Assemblies.** Dawnsbury Days itself consists of two main assemblies, `Dawnsbury Days.dll` and `Common.dll`, both in the Data folder. The `Dawnsbury Days.exe` file in the Data folder is a native launcher for that DLL file and you can't reference it. The `Dawnsbury Days.exe` file in the main game folder is a .NET Framework launcher that does nothing except launch the Dawnsbury Days.exe file in the Data folder. You can't reference it either. The main assembly is `Dawnsbury Days.dll` and it contains xmldoc documentation for many important public classes and methods in the file `Dawnsbury Days.xml` right next to it. Your IDE's IntelliSense should pick it up automatically when you reference the assembly.
+
+**Namespaces.** Dawnsbury Days is split into the following main namespaces:
+
+* **Audio.** Contains the static class `Sfxs` that you can use to play music, voice lines and sound effects.
+* **Auxiliary.** Contains the Auxiliary framework, which is built on top of Monogame and is responsible for input/output and drawing.
+* **Campaign.Encounters.** Defines and loads adventure path encounters, the tutorial and random encounters.
+* **Campaign.Path.** Defines and handles savegames, player progression through the adventure path and what happens during each "campaign stop" such as an encounter, a long rest or a level up.  
+* **Core.** This is the main namespace mods may want to use. It contains the main rules subsystem, the definitions of feats, spells, monsters, combat actions and generally implements the PF2E ruleset. It contains many child namespaces.
+  * **Animations.** Contains code for particles and creatures moving across screen, as well as code for cutscenes.
+  * **CharacterBuilder.** Contains code for `CharacterSheet`, which represents a player character's character sheet and all the classes it needs. This system is further described in [Dawnsbury Days rules system architecture](#dawnsbury-days-rules-system-architecture).
+  * **CharacterBuilder.FeatsDb.** The classes in this namespace implement ancestries, backgrounds, classes, class features, feats, impulses, and spells.<br><br>If you want to create a mod that adds a new feature like this, you can use the existing definitions here for inspiration and add the new feature using `ModManager.AddFeat`.<br><br>If you want to update an existing feature, such as by adding a new heritage to an existing ancestry or changing the rules or properties of a feat or feature, you can make those changes to the static property `AllFeats.All` as demonstrated by the example mod `Dawnsbury.Mods.Feats.General.ABetterFleet`.
+  * **Coroutines.** This contains the fairly complex definition of the [async/await coroutine engine](#asyncawait-coroutine-engine). If you need to have a player make a choice during the resolution of a combat action in combat, and it can't be solved by targeting, you'll need to use the `await battle.SendRequest(...)` to ask the player to make a choice. If you need to take an action that might require a player choice—which is almost anything, because almost anything can be interrupted by a reaction which needs to ask the player whether to take it—then that action will also be _async_ and you will need to `await` it. You can find some of such common actions in `CommonSpellEffects`.
+  * **Creatures.** This contains information about a creature in combat, as opposed to a player character's character sheet. Monsters don't have character sheet and during combat gameplay, even players' character sheet is mostly irrelevant and in any case read-only, and the player characters are also represented as a `Creature`. Each character sheet is converted to a Creature as a combat begins.
+  * **Intelligence.** This contains pathfinding code, as well as tactics used by the computer-controlled creatures. Each creature has its own instance of the `AI` class, which determines how it values each option it can take: Each time a creature is asked to make a choice, such as if it's that creature's turn and it can move into various spaces or take various combat actions, code in this namespace evaluates most possible choices and then causes the creature to select the option with the highest value (called "AI usefulness" in the code). The creature's particular values in its AI class instance determine how it values each option. For example, normal enemies value flanking, but mindless enemies don't value flanking at all.
+  * **Mechanics.** This large namespace deals with making "main checks" (attack rolls and saving throws), dealing damage, targeting, traits, bonuses and penalties, and items. The class _CombatActionExecution_ wraps the evaluation of each combat action and uses many of these things. Determining the final check bonus and the final DC is done mostly by the static class _Checks_.
+  * **Possibilities.** When it's your turn, the bottom bar of the in-game screen shows all the "possibilities" that you have. Two possibilities are the most common: the ActionPossibility, which enables you to take a combat action, and the SubmenuPossibility, which expands a secondary (or potentially tertiary) bottom bar. 
+  * **Roller.** These classes deal with die rolling.
+  * **StatBlocks.** These classes contain the definition of each monster, NPC or interactible item or obstacle.
+  * **Tiles.** The code of Dawnsbury Days doesn't use feet, but instead uses "tiles" or "squares", and this namespace contains code for the battlemap and the tiles.
+* **Display.** This namespace and its child namespaces contain code that draws data on screen, manipulates text, controls drag-and-drop and it also contains some user interface controls that are not part of Auxiliary, such as the ScrollPane.
+* **IO.** Contains auxiliary classes and methods for save/load, serialization, settings, logging, telemetry and other interaction with the outside world.
+* **Modding.** Contains helper classes meant to help with creating custom mods. All classes in this namespace are fully documented.
+* **Phases.** Contains so-called "phases" which represent screens. For example, MainMenuPhase represents the main menu, SettingsPhase represents the settings window and BattlePhase represents the main in-game screen. The child namespace CampaignViews contains the sections of the adventure path, such as Retraining and Shop; and the child namespace CharacterBuilderPages contains the user interface controls of the character builder, such as feat selection, spell selection or daily preparations.
 
 ## Dawnsbury Days rules system architecture
 
@@ -64,6 +93,14 @@ A state-check proceeds like this:
 2. For each creature, the `StateCheck` code of each of its QEffects applies.
 3. If at least one StateCheck event applied during step 2, the state-check repeats from step 2. This way, you can use a StateCheck event to create another Ephemeral QEffect on yourself or another creature.
 4. When no more state-check events apply during step 3, the state-check ends.
+
+## Troubleshooting
+
+**Missing async.** Some decompilers, such as the JetBrains decompiler, omit the keyword "async" in their decompiled async lambda methods. If you copy-paste such decompiled code into your project, it will either fail to compile (if it contains an `await` expression) or it will function incorrectly and produce a warning. To fix this, and as a general rule, if a method signature contains `Task` or `Task<something>` as the return value, you must declare that method as `async`. See [Async/await coroutine engine](#asyncawait-coroutine-engine).
+
+**System.Drawing.Color vs. Microsoft.Xna.Color.** If your mod adds visual elements, such as a flyout overhead, it may need to specify a color using the type `Microsoft.Xna.Color`. To refer to that type, your project must either reference the NuGet package `MonoGame.Framework.WindowsDX` or must reference the assembly `MonoGame.Framework.dll` that you'll find in the `Data` folder of the game, in the same folder as `Dawnsbury Days.dll`.
+
+**Missing IllustrationName.** If your mod adds something that needs an illustration, such as a new item or QEffect, you may want to use an existing illustration by referring to its `IllustrationName`. This enum is in the `Common.dll` library that you'll find in the `Data` folder of the game and must also reference.
 
 ## Licensing
 
