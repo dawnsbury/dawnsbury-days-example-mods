@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Origin.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Enumerations;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 

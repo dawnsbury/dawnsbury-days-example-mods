@@ -1,13 +1,12 @@
-﻿using Origin.Core.CharacterBuilder.Feats;
-using Origin.Core.CharacterBuilder.FeatsDb;
-using Origin.Core.Mechanics.Enumerations;
-using Origin.Modding;
+﻿using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Feats.General.ImpossibleToughness;
 
 public class ImpossibleToughnessFeatLoader
 {
-    [Origin.Modding.DawnsburyDaysModMainMethodAttribute]
+    [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
         // This is the "Hello, world!" mod that you can try compiling and loading to check if your local environment is set up correctly.

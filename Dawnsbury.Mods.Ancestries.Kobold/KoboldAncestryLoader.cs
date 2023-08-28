@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Origin.Audio;
-using Origin.Auxiliary;
+using Dawnsbury.Audio;
+using Dawnsbury.Auxiliary;
+using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.CharacterBuilder.AbilityScores;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Modding;
 using Origin.Core;
-using Origin.Core.Animations;
-using Origin.Core.CharacterBuilder.AbilityScores;
-using Origin.Core.CharacterBuilder.Feats;
-using Origin.Core.CharacterBuilder.FeatsDb;
-using Origin.Core.CharacterBuilder.FeatsDb.Common;
-using Origin.Core.CharacterBuilder.Selections.Options;
-using Origin.Core.CombatActions;
-using Origin.Core.Creatures;
-using Origin.Core.Mechanics;
-using Origin.Core.Mechanics.Core;
-using Origin.Core.Mechanics.Enumerations;
-using Origin.Core.Mechanics.Targeting;
-using Origin.Core.Mechanics.Treasure;
-using Origin.Core.Possibilities;
-using Origin.Modding;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -25,7 +24,7 @@ namespace Dawnsbury.Mods.Ancestries.Kobold;
 
 public class KoboldAncestryLoader
 {
-    [Origin.Modding.DawnsburyDaysModMainMethodAttribute]
+    [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
         AddFeats(CreateDraconicExemplars());

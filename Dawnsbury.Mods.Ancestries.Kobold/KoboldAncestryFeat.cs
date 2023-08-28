@@ -1,5 +1,5 @@
-﻿using Origin.Core.CharacterBuilder.Feats;
-using Origin.Core.Mechanics.Enumerations;
+﻿using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Mechanics.Enumerations;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 

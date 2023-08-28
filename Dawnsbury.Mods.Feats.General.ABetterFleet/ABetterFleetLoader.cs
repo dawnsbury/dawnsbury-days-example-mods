@@ -1,13 +1,13 @@
-﻿using Origin.Core.CharacterBuilder.Feats;
-using Origin.Core.CharacterBuilder.FeatsDb;
-using Origin.Core.Mechanics.Enumerations;
-using Origin.Modding;
+﻿using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Feats.General.ABetterFleet;
 
 public class ABetterFleetLoader
 {
-    [Origin.Modding.DawnsburyDaysModMainMethodAttribute]
+    [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
         // This sample demonstrates how to replace an existing feat with a new one:
