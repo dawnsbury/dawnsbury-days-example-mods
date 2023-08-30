@@ -16,7 +16,7 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Modding;
-using Origin.Core;
+using Dawnsbury.Core;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
