@@ -22,18 +22,26 @@ using Dawnsbury.Core;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
-public class KoboldAncestryLoader
+public static class KoboldAncestryLoader
 {
+    public static Trait KoboldTrait;
+    
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
+        KoboldTrait = ModManager.RegisterTrait(
+            "Kobold",
+            new TraitProperties("Kobold", true)
+            {
+                IsAncestryTrait = true
+            });
         AddFeats(CreateDraconicExemplars());
         AddFeats(CreateKoboldAncestryFeats());
 
         ModManager.AddFeat(new AncestrySelectionFeat(
                 FeatName.CustomFeat,
                 "Every kobold knows that their slight frame belies true, mighty draconic power. They are ingenious crafters and devoted allies within their warrens, but those who trespass into their territory find them to be inspired skirmishers, especially when they have the backing of a draconic sorcerer or true dragon overlord. However, these reptilian opportunists prove happy to cooperate with other humanoids when it's to their benefit, combining caution and cunning to make their fortunes in the wider world.",
-                new List<Trait> { Trait.Humanoid, Trait.Kobold },
+                new List<Trait> { Trait.Humanoid, KoboldTrait },
                 6,
                 5,
                 new List<AbilityBoost>()

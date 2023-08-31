@@ -47,7 +47,7 @@ Or, instead of creating a .NET class library project from scratch, you can copy 
 
 ## Dawnsbury Days rules system architecture
 
-All the code that pertains to combat rules, classes, feats, spells, monsters, maps and actions in combat is in the namespace `Origin.Core`. 
+All the code that pertains to combat rules, classes, feats, spells, monsters, maps and actions in combat is in the namespace `Dawnsbury.Core`. 
 
 ### Characters
 A character that you can build is represented by a `CharacterSheet` in the campaign and in the random encounter mode menu, and as a `Creature` during an encounter. Enemies are represented as `Creature` and don't have character sheets.
@@ -98,9 +98,9 @@ A state-check proceeds like this:
 
 **Missing async.** Some decompilers, such as the JetBrains decompiler, omit the keyword "async" in their decompiled async lambda methods. If you copy-paste such decompiled code into your project, it will either fail to compile (if it contains an `await` expression) or it will function incorrectly and produce a warning. To fix this, and as a general rule, if a method signature contains `Task` or `Task<something>` as the return value, you must declare that method as `async`. See [Async/await coroutine engine](#asyncawait-coroutine-engine).
 
-**System.Drawing.Color vs. Microsoft.Xna.Color.** If your mod adds visual elements, such as a flyout overhead, it may need to specify a color using the type `Microsoft.Xna.Color`. To refer to that type, your project must either reference the NuGet package `MonoGame.Framework.WindowsDX` or must reference the assembly `MonoGame.Framework.dll` that you'll find in the `Data` folder of the game, in the same folder as `Dawnsbury Days.dll`.
+**System.Drawing.Color vs. Microsoft.Xna.Color.** If your mod adds visual elements, such as a flyout overhead, it may need to specify a color using the type `Microsoft.Xna.Color`. To refer to that type, your project must either reference the NuGet package `MonoGame.Framework.WindowsDX` or must reference the assembly `MonoGame.Framework.dll` that you'll find in the `Data` folder of the game, in the same folder as `Dawnsbury Days.dll`. To fix this error, add the `Data/MonoGame.Framework.dll` assembly as a reference to your project.
 
-**Missing IllustrationName.** If your mod adds something that needs an illustration, such as a new item or QEffect, you may want to use an existing illustration by referring to its `IllustrationName`. This enum is in the `Common.dll` library that you'll find in the `Data` folder of the game and must also reference.
+**Missing IllustrationName.** If your mod adds something that needs an illustration, such as a new item or QEffect, you may want to use an existing illustration by referring to its `IllustrationName`. This enum is in the `Common.dll` library that you'll find in the `Data` folder of the game and must also reference. To fix this error, add the `Data/Common.dll` assembly as a reference to your project.
 
 ## Licensing
 
