@@ -1,0 +1,7 @@
+﻿The spell created in this mod uses ModdedIllustration to load a .PNG file from the CustomMods directory. If you want to create your own icons for your own spells, you can use the same approach and you can use any .png file you like.
+
+If you want your spell icon to look similar to the built-in icons (with the fade-out edges), you can use Paint.NET with BoltBait's plugin pack like this:
+
+1. Start with a 256x256 base image.
+2. Expand the canvas to 280x280, using transparent background color, keeping the base image in the center.
+3. Use the "Alpha Blur" plugin for BoltBait's plugin pack (you'll need to download it separately), using Radius 10 and Shift in -35.

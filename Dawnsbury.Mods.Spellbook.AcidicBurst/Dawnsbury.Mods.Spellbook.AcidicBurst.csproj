@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../Dawnsbury.Mod.targets" />
+    <ItemGroup>
+      <None Update="AcidicBurst.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+    <Target Name="CopyIconToGameModsFolder" AfterTargets="Build">
+        <Copy SourceFiles="$(TargetDir)AcidicBurst.png" DestinationFolder="../../Maingame/bin/$(Configuration)/win-x64/CustomMods" />
+    </Target>
+</Project>

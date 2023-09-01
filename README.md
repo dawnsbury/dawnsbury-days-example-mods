@@ -16,7 +16,20 @@ You can then build your project and put the output assembly .dll file into the `
 
 It may be useful for you to set up a post-build setup that will automatically place your output assembly into the CustomMods folder for faster iteration. The file `Dawnsbury.Mod.targets` in this folder can help you with that.
 
-Or, instead of creating a .NET class library project from scratch, you can copy the project `Dawnsbury.Mods.Feats.General.ImpossibleToughness` from this folder, which is a small "Hello, world"-style project, and start by modifying it.
+Or, instead of creating a .NET class library project from scratch, you can copy the project `Dawnsbury.Mods.Feats.General.ImpossibleToughness` from this folder, which is a small "Hello, world"-style project, and start by modifying it. See the [Example mods](#example-mods) section just below.
+
+## Example mods
+
+You can use the example mods in this folder as inspiration, or you can decompile the `Dawnsbury Days.dll` file in Data folder to check how built-in classes, feats and spells are implemented.
+
+The example mods are:
+
+* **Dawnsbury.Mods.Feats.General.ImpossibleToughness.** This is a "Hello, world!" mod which only adds one simple general feat.
+* **Dawnsbury.Mods.Feats.General.ABetterFleet.** This mod shows how to replace an existing feat.
+* **Dawnsbury.Mods.Ancestries.Kobold.** This is a more advanced mod which adds an entire ancestry, its heritages and its ancestry feats and shows off some more advanced modding options.
+* **Dawnsbury.Mods.Spells.AcidicBurst.** This mod shows how to add a new spell to the game.
+* **Dawnsbury.Mods.Spells.ABetterBurningHands.** This mod shows how to replace an existing spell.
+* **Dawnsbury.Mods.Variants.AutomaticBonusProgression.** This mod implement the Automatic Bonus Progression variant rule showing off some more advanced techniques.
 
 ## Dawnsbury Days solution architecture
 
