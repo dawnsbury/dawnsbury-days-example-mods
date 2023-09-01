@@ -27,9 +27,9 @@ The example mods are:
 * **Dawnsbury.Mods.Feats.General.ImpossibleToughness.** This is a "Hello, world!" mod which only adds one simple general feat.
 * **Dawnsbury.Mods.Feats.General.ABetterFleet.** This mod shows how to replace an existing feat.
 * **Dawnsbury.Mods.Ancestries.Kobold.** This is a more advanced mod which adds an entire ancestry, its heritages and its ancestry feats and shows off some more advanced modding options.
-* **Dawnsbury.Mods.Spells.AcidicBurst.** This mod shows how to add a new spell to the game.
-* **Dawnsbury.Mods.Spells.ABetterBurningHands.** This mod shows how to replace an existing spell.
-* **Dawnsbury.Mods.Variants.AutomaticBonusProgression.** This mod implement the Automatic Bonus Progression variant rule showing off some more advanced techniques.
+* **Dawnsbury.Mods.Spellbook.AcidicBurst.** This mod shows how to add a new spell to the game.
+* **Dawnsbury.Mods.Spellbook.ABetterBurningHands.** This mod shows how to replace an existing spell.
+* **Dawnsbury.Mods.Variants.AutomaticBonusProgression.** This mod implements the [Automatic Bonus Progression variant rule](https://2e.aonprd.com/Rules.aspx?ID=1357) showing off some more advanced techniques.
 
 ## Dawnsbury Days solution architecture
 
