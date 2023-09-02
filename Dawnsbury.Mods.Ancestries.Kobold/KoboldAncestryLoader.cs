@@ -283,8 +283,12 @@ public static class KoboldAncestryLoader
                                     Target.Self()
                                         .WithAdditionalRestriction(self =>
                                         {
-                                            return self.HeldItems.Any(item => item.WeaponProperties?.DamageKind == DamageKind.Piercing
-                                                                              || item.WeaponProperties?.DamageKind == DamageKind.Slashing);
+                                            if (!self.HeldItems.Any(item => item.WeaponProperties?.DamageKind == DamageKind.Piercing || item.WeaponProperties?.DamageKind == DamageKind.Slashing))
+                                            {
+                                                return "You must wield a piercing or slashing weapon.";
+                                            }
+
+                                            return null;
                                         })
                                 )
                                 .WithActionCost(1)
