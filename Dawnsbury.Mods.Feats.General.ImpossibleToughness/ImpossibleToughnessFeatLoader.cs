@@ -18,6 +18,5 @@ public class ImpossibleToughnessFeatLoader
                 new[] { Trait.General })
             .WithCustomName("Impossible Toughness")
             .WithOnCreature(cr => cr.MaxHP += 20000));
-
     }
 }
