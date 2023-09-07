@@ -268,7 +268,7 @@ public static class KoboldAncestryLoader
             .WithCustomName("Venomtail Kobold")
             .WithOnCreature(creature =>
             {
-                if (creature.PersistentUsedUpResources?.UsedOrcFerocity ?? false) return;
+                if (creature.PersistentUsedUpResources?.UsedUpActions.Contains("Tail Toxin") ?? false) return;
                 creature.AddQEffect(new QEffect("Tail Toxin", "You can apply your tail's venom to your weapon.")
                 {
                     ProvideMainAction = (qfSelf) =>
@@ -298,10 +298,8 @@ public static class KoboldAncestryLoader
                                     self.RemoveAllQEffects(qf => qf.Name == "Tail Toxin");
                                     
                                     // You can no longer use it until the end of the day:
-                                    // (This is a hack, as we're reusing the "UsedOrcFerocity" flag so potentially a Venomtail Kobold with Adopted Ancestry (Orc) and Orc Ferocity would be affected,
-                                    // but I hope for the purposes of a simple mod it's fine.)
-                                    if (self.PersistentUsedUpResources != null) self.PersistentUsedUpResources.UsedOrcFerocity = true;
-                                    
+                                    self.PersistentUsedUpResources?.UsedUpActions.Add("Tail Toxin");
+
                                     // Set up the actual effect:
                                     self.AddQEffect(new QEffect("Poisoned weapon", "Your next Strike with a piercing or slashing weapon deals extra persistent poison damage.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, self, IllustrationName.AcidSplash)
                                     {
