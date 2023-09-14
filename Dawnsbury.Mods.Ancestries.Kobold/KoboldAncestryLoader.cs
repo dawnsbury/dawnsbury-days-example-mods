@@ -112,7 +112,7 @@ public static class KoboldAncestryLoader
                 "You are trained with the crossbow and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.")
             .WithOnSheet(sheet =>
             {
-                sheet.SetProficiency(Trait.Crossbow, Proficiency.Trained);
+                sheet.SetProficiency(Trait.SimpleCrossbow, Proficiency.Trained);
                 sheet.SetProficiency(Trait.Spear, Proficiency.Trained);
                 sheet.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Martial), Trait.Simple);
                 sheet.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Advanced), Trait.Martial);
