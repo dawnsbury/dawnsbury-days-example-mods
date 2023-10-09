@@ -117,7 +117,7 @@ A state-check proceeds like this:
 
 ## Licensing
 
-The MIT license applies only to the example mods in this folder. It doesn't apply to Dawnsbury Days as whole. 
+The MIT license applies only to the example mods in this folder. It doesn't apply to Dawnsbury Days as whole. It also doesn't apply to any images or sounds in this folder which are under a separate non-open-source license.
 
 However, I give permission to decompile, use and modify the decompiled code specifically for the purpose of creating Dawnsbury Days mods. For example, if you want to adjust how some feat works, it is okay to copy its decompiled code into your own mod, or to use it as a base for your own feat. 
 
