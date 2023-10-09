@@ -18,10 +18,11 @@ public class AcidicBurst
     {
         ModManager.RegisterNewSpell("AcidicBurst", 1, ((spellId, caster, spellLevel, inCombat) =>
         {
-            return Spells.CreateModern(new ModdedIllustration("AcidicBurst.png"), "Acidic Burst", new[] { Trait.Acid, Trait.Evocation, Trait.Arcane, Trait.Primal },
+            return Spells.CreateModern(new ModdedIllustration("AcidicBurstAssets/AcidicBurst.png"), "Acidic Burst", new[] { Trait.Acid, Trait.Evocation, Trait.Arcane, Trait.Primal },
                     "You create a shell of acid around yourself that immediately bursts outward.",
                     "Deal " + S.HeightenedVariable(spellLevel * 2, 2) + "d6 acid damage to each creature in the area." + S.HeightenedDamageIncrease(spellLevel, inCombat, "2d6"),
                     Target.SelfExcludingEmanation(1), spellLevel, SpellSavingThrow.Basic(Defense.Reflex))
+                .WithSoundEffect(ModManager.RegisterNewSoundEffect("AcidicBurstAssets/AcidicBurstSfx.mp3"))
                 .WithEffectOnEachTarget((async (spell, caster, target, result) =>
                 {
                     await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (spellLevel * 2) + "d6", DamageKind.Acid);
