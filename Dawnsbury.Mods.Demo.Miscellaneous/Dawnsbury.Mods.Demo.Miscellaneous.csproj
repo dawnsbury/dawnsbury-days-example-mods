@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <Import Project="../Dawnsbury.Mod.targets" />
     <PropertyGroup>
-        <InstallIntoDevelopmentEnvironment>false</InstallIntoDevelopmentEnvironment>
+        <InstallIntoDevelopmentEnvironment>true</InstallIntoDevelopmentEnvironment>
     </PropertyGroup>
 </Project>

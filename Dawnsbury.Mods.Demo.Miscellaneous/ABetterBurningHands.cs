@@ -1,6 +1,5 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Core;
-using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
@@ -10,12 +9,14 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
 
-namespace Dawnsbury.Mods.Spellbook.ABetterBurningHands;
+namespace Dawnsbury.Mods.Demo.Miscellaneous;
 
-public class ABetterBurningHands
+/// <summary>
+/// Updates an existing spell.
+/// </summary>
+public static class ABetterBurningHands
 {
-    [DawnsburyDaysModMainMethod]
-    public static void LoadMod()
+    public static void Apply()
     {
         ModManager.ReplaceExistingSpell(SpellId.BurningHands, 1, (caster, level, inCombat) =>
         {
