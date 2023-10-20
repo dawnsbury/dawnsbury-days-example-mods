@@ -269,7 +269,7 @@ public static class KoboldAncestryLoader
             .WithCustomName("Venomtail Kobold")
             .WithOnCreature(creature =>
             {
-                if (creature.PersistentUsedUpResources?.UsedUpActions.Contains("Tail Toxin") ?? false) return;
+                if (creature.PersistentUsedUpResources.UsedUpActions.Contains("Tail Toxin")) return;
                 creature.AddQEffect(new QEffect("Tail Toxin", "You can apply your tail's venom to your weapon.")
                 {
                     ProvideMainAction = (qfSelf) =>
@@ -299,7 +299,7 @@ public static class KoboldAncestryLoader
                                     self.RemoveAllQEffects(qf => qf.Name == "Tail Toxin");
                                     
                                     // You can no longer use it until the end of the day:
-                                    self.PersistentUsedUpResources?.UsedUpActions.Add("Tail Toxin");
+                                    self.PersistentUsedUpResources.UsedUpActions.Add("Tail Toxin");
 
                                     // Set up the actual effect:
                                     self.AddQEffect(new QEffect("Poisoned weapon", "Your next Strike with a piercing or slashing weapon deals extra persistent poison damage.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, self, IllustrationName.AcidSplash)
