@@ -10,7 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="../../Maingame/Dawnsbury Days.csproj"/>
     </ItemGroup>
-    <Target Name="CopyToGameModsFolder" AfterTargets="Build" Condition="'$(InstallIntoDevelopmentEnvironment)' != 'false'">
+    <Target Name="CopyToGameModsFolder" AfterTargets="Build" Condition="'$(InstallIntoDevelopmentEnvironment)' == 'true'">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="../../Maingame/bin/$(Configuration)/win-x64/CustomMods" />
     </Target>    
     <!-- Use the Dawnsbury Days.exe file that's in the Data subfolder — that's the assembly that contains all of Dawnsbury Days code. Do not use the Dawnsbury Days.exe file
