@@ -4,6 +4,7 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Demo.Miscellaneous;
@@ -13,7 +14,7 @@ public static class ANewWeapon
     public static void RegisterAWeapon()
     {
         ModManager.RegisterNewItemIntoTheShop("Megaaxe", itemName =>
-            new Item(itemName, IllustrationName.BattleAxe, "megaaxe", 0, 10, Trait.Razing, Trait.Sweep, Trait.Backswing, Trait.Backstabber, Trait.Forceful, Trait.Agile, Trait.Simple, Trait.BattleAxe, Trait.Axe)
+            new Item(itemName, (Illustration)IllustrationName.BattleAxe, "megaaxe", 0, 10, Trait.Razing, Trait.Sweep, Trait.Backswing, Trait.Backstabber, Trait.Forceful, Trait.Agile, Trait.Simple, Trait.BattleAxe, Trait.Axe)
                 .WithWeaponProperties(new WeaponProperties("1d12", DamageKind.Slashing)
                     .WithAdditionalDamage("6d12", DamageKind.Fire)
                     .WithAdditionalPersistentDamage("40", DamageKind.Fire)));
@@ -22,7 +23,7 @@ public static class ANewWeapon
     public static void RegisterAWondrousItem()
     {
         var appleOfPower = ModManager.RegisterNewItemIntoTheShop("AppleOfPower", itemName =>
-            new Item(itemName, IllustrationName.Apple, "apple of power", 0, 14)
+            new Item(itemName, (Illustration)IllustrationName.Apple, "apple of power", 0, 14)
             {
                 Description = "While you hold the {i}apple of power{/i}, you have a +42 to AC and all saving throws."
             });
