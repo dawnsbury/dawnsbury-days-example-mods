@@ -35,7 +35,7 @@ public static class ABetterBurningHands
                 .WithNoSaveFor((spell, target)=> target.FriendOf(spell.Owner)) // Allies don't need to make a saving throw.
                 .WithEffectOnEachTarget((async (spell, caster, target, checkResult) =>
                 {
-                    if (caster.FriendOf(target))
+                    if (target.FriendOf(caster))
                     {
                         // Allies are excluded from the effect.
                         return;
