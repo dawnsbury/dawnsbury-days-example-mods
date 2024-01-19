@@ -133,7 +133,7 @@ public static class KoboldAncestryLoader
                         ProvideMainAction = (qfSelf) =>
                         {
                             var kobold = qfSelf.Owner;
-                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath Weapon", new Trait[0],
+                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath Weapon", Array.Empty<Trait>(),
                                     "You manifest as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.",
                                     draconicExemplar.IsCone ? Target.Cone(3) : Target.Line(6))
                                 .WithActionCost(2)

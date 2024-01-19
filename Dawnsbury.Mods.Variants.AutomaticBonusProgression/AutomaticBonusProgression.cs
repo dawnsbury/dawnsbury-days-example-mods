@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.Creatures.Parts;
@@ -65,7 +64,6 @@ public class AutomaticBonusProgression
             var feat = new Feat(FeatName.CustomFeat, null, "You gain a +1 potency bonus to " + skill + ".", new List<Trait>() { skillPotencyTrait }, null)
                 .WithOnCreature((sheet, cr) =>
                 {
-                    var appropriateTrait = (Trait)Enum.Parse(typeof(Trait), skill.ToString());
                     cr.AddQEffect(new QEffect("Skill Potency (Lv.3)", "You have a +1 potency bonus to " + skill + ".")
                     {
                         BonusToSkills = (bonusToWhatSkill) =>

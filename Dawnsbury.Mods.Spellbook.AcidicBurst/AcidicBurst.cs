@@ -1,6 +1,4 @@
-﻿using Dawnsbury.Core;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+﻿using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -16,7 +14,7 @@ public class AcidicBurst
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
-        ModManager.RegisterNewSpell("AcidicBurst", 1, ((spellId, caster, spellLevel, inCombat) =>
+        ModManager.RegisterNewSpell("AcidicBurst", 1, ((spellId, spellcaster, spellLevel, inCombat) =>
         {
             return Spells.CreateModern(new ModdedIllustration("AcidicBurstAssets/AcidicBurst.png"), "Acidic Burst", new[] { Trait.Acid, Trait.Evocation, Trait.Arcane, Trait.Primal },
                     "You create a shell of acid around yourself that immediately bursts outward.",
