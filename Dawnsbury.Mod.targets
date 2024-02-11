@@ -4,6 +4,7 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <Platform>x64</Platform>
         <PlatformTarget>x64</PlatformTarget>
+        <WarningsAsErrors>0618</WarningsAsErrors> <!-- Makes the "You're using obsolete stuff." warning into an error so that you're aware when Dawnsbury Days code is going to be changed. -->
     </PropertyGroup>
     <!-- Dawnsbury Studios uses the following item group to interact with Dawnsbury Days source code. You don't have access to the source code so comment it out. -->
     <!--    Comment the following code out: -->
