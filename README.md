@@ -1,7 +1,9 @@
 ## How to install mods
 To enable one of the example mods, rename its DLL file from `.dll-disabled` to `.dll`.
 
-To enable a mod you downloaded, add its DLL file to the CustomMods folder in your installation folder. 
+To enable a mod you downloaded, add its DLL file to the CustomMods folder in your installation folder.
+
+If you're using the Steam version of Dawnsbury Days, you can also subscribe to mods from the Steam Workshop.
 
 Mods don't run in any sandbox. They're executable .NET code which has full privileges on your computer. You should download mods only from authors or platforms you trust.
 
@@ -114,6 +116,10 @@ A state-check proceeds like this:
 **System.Drawing.Color vs. Microsoft.Xna.Color.** If your mod adds visual elements, such as a flyout overhead, it may need to specify a color using the type `Microsoft.Xna.Color`. To refer to that type, your project must either reference the NuGet package `MonoGame.Framework.WindowsDX` or must reference the assembly `MonoGame.Framework.dll` that you'll find in the `Data` folder of the game, in the same folder as `Dawnsbury Days.dll`. To fix this error, add the `Data/MonoGame.Framework.dll` assembly as a reference to your project.
 
 **Missing IllustrationName.** If your mod adds something that needs an illustration, such as a new item or QEffect, you may want to use an existing illustration by referring to its `IllustrationName`. This enum is in the `Common.dll` library that you'll find in the `Data` folder of the game and must also reference. To fix this error, add the `Data/Common.dll` assembly as a reference to your project.
+
+## Upload to the Steam Workshop
+
+See the subfolder "Steam Workshop Uploader" in the game main folder for instructions on how to share your Dawnsbury Days mods with others using the Steam Workshop. 
 
 ## Licensing
 
