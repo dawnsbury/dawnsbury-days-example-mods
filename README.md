@@ -31,6 +31,7 @@ The example mods are:
 * **Dawnsbury.Mods.Ancestries.Kobold.** This is a more advanced mod which adds an entire ancestry, its heritages and its ancestry feats and shows off some more advanced modding options.
 * **Dawnsbury.Mods.Spellbook.AcidicBurst.** This mod shows how to add a new spell to the game.
 * **Dawnsbury.Mods.Demo.Miscellaneous.** This mod shows miscellaneous ModManager endpoints, such how to replace an existing spell or how to add new items.
+* **Dawnsbury.Mods.Creatures.Scarecrow.** This mod demonstrates how to create new creatures and maps that make use of those creatures.
 * **Dawnsbury.Mods.Variants.AutomaticBonusProgression.** This mod implements the [Automatic Bonus Progression variant rule](https://2e.aonprd.com/Rules.aspx?ID=1357) showing off some more advanced techniques.
 
 ## Dawnsbury Days solution architecture
@@ -108,6 +109,9 @@ A state-check proceeds like this:
 2. For each creature, the `StateCheck` code of each of its QEffects applies.
 3. If at least one StateCheck event applied during step 2, the state-check repeats from step 2. This way, you can use a StateCheck event to create another Ephemeral QEffect on yourself or another creature.
 4. When no more state-check events apply during step 3, the state-check ends.
+
+## Modding in new creatures
+To create new creatures, check the file [ABOUT CREATURE MODS.txt](Dawnsbury.Mods.Creatures.Scarecrow/ABOUT CREATURE MODS.txt) in the example Scarecrow mod.
 
 ## Troubleshooting
 

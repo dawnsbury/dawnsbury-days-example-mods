@@ -1,0 +1,31 @@
+﻿If you want to create a new creature and use it in a custom map, you'll need to:
+(1) Create the code mod itself which adds the creature.
+(2) Create a .tsx tileset file which references the creature.
+(3) Create the .tmx encounter map which uses the creature.
+If you only want to create the creature and don't want to create an encounter for it (perhaps leaving that up for modders who make use of your creature), you can skip steps 2 and 3.
+
+Let's go through an example where you want to create a new creature, "Blue Slime", and use it in an encounter. 
+
+Your mod structure will probably look like this:
+
+\
+|
++-- CustomMaps
+    |
+    +-- OozingCaverns.tmx
+    +-- SlimesTileset.tsx
+    +-- BlueSlime.png 
++-- CustomMods
+    |
+    +-- Dawnsbury.Mods.Creatures.BlueSlime.dll
+    +-- BlueSlime.png
+
+(1) In your code mod, call ModManager.RegisterNewCreature("BlueSlime", ...) where you'll define what your creature is and does. If you want to have your own art for the creature, you'll probably use "new ModdedIllustration" which looks for image files in the CustomMods folder, which is why you need the BlueSlime.png picture in the CustomMods folder.
+ 
+When you load this mod, Dawnsbury Days will be able to load creatures with the Id "BlueSlime" from map files.
+
+(2) To use the creature from within maps, it must be in a tileset file. Normally, Dawnsbury Days comes only with a single tileset file, the BasicTileset.tsx, which doesn't contain your new creature. You'll need to create a new one: Create a new external tileset in the Tiled map editor and add your creature in there as a new tile. The image you choose doesn't matter, but for ease of use in the Tiled editor, I recommend you use the same 256x256-pixels creature token that you used in step 1. 
+
+Importantly, you must add a custom property to the new creature tile you created for the tileset. This property must have the name "Id" and its value must be the creature identifier name you chose in step 1. In our case, it's "BlueSlime". This property is how Dawnsbury Days and Tiled maps interact.
+
+(3) To create a new map with the creature, you'll need to "add external tileset" to your map in the Tiled editor. Your map will then have two tilesets: the basic tileset that comes with Dawnsbury Days and your new modded one. 
