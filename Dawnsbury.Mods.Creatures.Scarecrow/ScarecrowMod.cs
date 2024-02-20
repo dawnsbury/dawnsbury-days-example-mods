@@ -54,7 +54,7 @@ public class ScarecrowMod
                 });
             }
             
-            var qfScarecrowLeer = new QEffect("Scarecrow's Leer", "Creatures within 40 feet of the scarecrow are affected by its aura of fear and must make a DC 18 Will save when they first enter the aura and at the beginning of each turn.")
+            var qfScarecrowLeer = new QEffect("Scarecrow's Leer", "Creatures within 40 feet of the scarecrow are affected by its aura of fear and must make a DC 18 Will save when they first enter the aura and at the beginning of each turn. On a critical success, they're unaffected and immune for the rest of the encounter. On a success, frightened 1. On a failure, frightened 2. On a critical failure, frightened 3.")
             {
                 StateCheckWithVisibleChanges = async (leer) =>
                 {
