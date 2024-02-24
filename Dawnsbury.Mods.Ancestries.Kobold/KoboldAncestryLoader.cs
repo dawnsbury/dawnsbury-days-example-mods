@@ -143,7 +143,7 @@ public static class KoboldAncestryLoader
                                 {
                                     caster.AddQEffect(QEffect.CannotUseForXRound("Breath Weapon", caster, R.Next(2, 5)));
                                 }))
-                            );
+                            ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
                         }
                     });
                 }
@@ -311,7 +311,7 @@ public static class KoboldAncestryLoader
                                         }
                                     });
                                 })
-                        );
+                        ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
                     }
                 });
             });
