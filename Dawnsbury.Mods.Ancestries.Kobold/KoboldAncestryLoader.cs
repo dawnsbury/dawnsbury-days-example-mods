@@ -19,8 +19,6 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Modding;
 using Dawnsbury.Core;
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
 public static class KoboldAncestryLoader

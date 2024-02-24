@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Dawnsbury.Core.CharacterBuilder.Feats;
+﻿using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Modding;
