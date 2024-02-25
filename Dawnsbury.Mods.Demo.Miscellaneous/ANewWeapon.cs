@@ -23,9 +23,7 @@ public static class ANewWeapon
     {
         var appleOfPower = ModManager.RegisterNewItemIntoTheShop("AppleOfPower", itemName =>
             new Item(itemName, IllustrationName.Apple, "apple of power", 0, 14)
-            {
-                Description = "While you hold the {i}apple of power{/i}, you have a +42 to AC and all saving throws."
-            });
+                .WithDescription("While you hold the {i}apple of power{/i}, you have a +42 to AC and all saving throws."));
         
         // The apple of power doesn't do anything on its own, but...
         ModManager.RegisterActionOnEachCreature(creature =>
