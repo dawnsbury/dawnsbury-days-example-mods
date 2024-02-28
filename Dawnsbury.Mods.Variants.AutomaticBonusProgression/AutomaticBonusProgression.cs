@@ -83,7 +83,8 @@ public class AutomaticBonusProgression
         
         ModManager.RegisterActionOnEachCharacterSheet(self =>
         {
-            self.Calculated.AddSelectionOption(new SingleFeatSelectionOption("SkillPotencySelection", "Skill Potency", 3, (ft)=>ft.HasTrait(skillPotencyTrait)));
+            self.Calculated.AddSelectionOption(new SingleFeatSelectionOption("SkillPotencySelection", "Skill Potency", 3, (ft)=>ft.HasTrait(skillPotencyTrait))
+                .WithIsOptional());
         });
     }
 }
