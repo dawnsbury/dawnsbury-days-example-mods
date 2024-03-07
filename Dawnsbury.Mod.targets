@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <!-- All mods must have this target framework, platform and platform target.-->
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net6.0-windows</TargetFramework>
         <Platform>x64</Platform>
         <PlatformTarget>x64</PlatformTarget>
         <NoWarn>1998</NoWarn> <!-- Dawnsbury Days uses many async methods, and you often won't want to make any await calls in them. -->

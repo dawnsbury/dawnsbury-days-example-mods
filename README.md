@@ -9,7 +9,7 @@ Mods don't run in any sandbox. They're executable .NET code which has full privi
 
 ## How to create a mod
 1. Create a new .NET class library project, for example using Microsoft Visual Studio.
-2. Set the platform to `x64`, platform target to `x64` and the target framework to `net8.0-windows`.
+2. Set the platform to `x64`, platform target to `x64` and the target framework to `net6.0-windows`.
 3. Reference the assembly `Data/Dawnsbury Days.dll` in your installation folder as an assembly reference. Make sure to reference the DLL file that's in your Data folder. The EXE file in the root of the installation folder is only a launcher which doesn't contain actual Dawnsbury Days code.
 4. In any one class in your project, add a public static method annotated with the attribute `DawnsburyDaysModMainMethodAttribute`. Dawnsbury Days will invoke that method when it starts up.
 5. Add any code you want your mod to execute on startup into that method. For example, you can use `ModManager.AddFeat(...)` to add custom feats, ancestries, etc. to the game.
