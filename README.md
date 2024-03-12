@@ -123,7 +123,9 @@ To create new creatures, check the file [ABOUT CREATURE MODS.txt](Dawnsbury.Mods
 
 ## Upload to the Steam Workshop
 
-See the subfolder "Steam Workshop Uploader" in the game main folder for instructions on how to share your Dawnsbury Days mods with others using the Steam Workshop. 
+If you want to share your mod with others, and your mod contains content that you only have permission to distribute through the Open Game License or the through the ORC License, you must distribute a copyright notice alongside your mod. To do so, create your own HTML file based on [the OGL template](Licensing/OGL%20copyright%20notice.html) or [the ORC template](Licensing/ORC%20copyright%20notice.html), and add that file into the root folder of your mod (just outside the folder CustomMods).
+
+See the subfolder "Steam Workshop Uploader" in the game main folder for technical instructions on how to share your Dawnsbury Days mods with others using the Steam Workshop.
 
 ## Licensing
 
