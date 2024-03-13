@@ -10,7 +10,10 @@ Mods don't run in any sandbox. They're executable .NET code which has full privi
 ## How to create a mod
 1. Create a new .NET class library project, for example using Microsoft Visual Studio.
 2. Set the platform to `x64`, platform target to `x64` and the target framework to `net6.0-windows`.
-3. Reference the assembly `Data/Dawnsbury Days.dll` in your installation folder as an assembly reference. Make sure to reference the DLL file that's in your Data folder. The EXE file in the root of the installation folder is only a launcher which doesn't contain actual Dawnsbury Days code.
+3. Reference the following assemblies from your installation folder as assembly references of your project:
+   1. the assembly `Data/Dawnsbury Days.dll`;
+   2. the assembly `Data/Common.dll`;
+   3. the assembly `Data/MonoGame.Framework.dll`.
 4. In any one class in your project, add a public static method annotated with the attribute `DawnsburyDaysModMainMethodAttribute`. Dawnsbury Days will invoke that method when it starts up.
 5. Add any code you want your mod to execute on startup into that method. For example, you can use `ModManager.AddFeat(...)` to add custom feats, ancestries, etc. to the game.
 
@@ -36,7 +39,11 @@ The example mods are:
 
 ## Dawnsbury Days solution architecture
 
-**Assemblies.** Dawnsbury Days itself consists of two main assemblies, `Dawnsbury Days.dll` and `Common.dll`, both in the Data folder. The `Dawnsbury Days.exe` file in the Data folder is a native launcher for that DLL file and you can't reference it. The `Dawnsbury Days.exe` file in the main game folder is a .NET Framework launcher that does nothing except launch the Dawnsbury Days.exe file in the Data folder. You can't reference it either. The main assembly is `Dawnsbury Days.dll` and it contains xmldoc documentation for many important public classes and methods in the file `Dawnsbury Days.xml` right next to it. Your IDE's IntelliSense should pick it up automatically when you reference the assembly.
+**Assemblies.** Dawnsbury Days itself consists of two main assemblies, `Dawnsbury Days.dll` and `Common.dll`, both in the Data folder. The `Dawnsbury Days.exe` file in the Data folder is a native launcher for that DLL file and you can't reference it.
+
+The `Dawnsbury Days.exe` file in the main game folder is a .NET Framework launcher that does nothing except launch the Dawnsbury Days.exe file in the Data folder. You can't reference it either. 
+
+The main assembly is `Dawnsbury Days.dll` and it contains xmldoc documentation for many important public classes and methods in the file `Dawnsbury Days.xml` right next to it. Your IDE's IntelliSense should pick it up automatically when you reference the assembly.
 
 **Namespaces.** Dawnsbury Days is split into the following main namespaces:
 
@@ -129,9 +136,13 @@ See the subfolder "Steam Workshop Uploader" in the game main folder for technica
 
 ## Licensing
 
-The MIT license applies only to the example mods in this folder. It doesn't apply to Dawnsbury Days as whole. It also doesn't apply to any images or sounds in this folder which are under a separate non-open-source license.
+Some parts of this repository are Open Game Content. See the individual folders for copyright notices and definitions of Open Game Content and Product Identity.
+
+I give permission to you to use any such Product Identity for any purpose (this includes all the actual code in this repository other than rules descriptions). It doesn't include the code of the base game, which is not so openly licensed, and it doesn't apply to any images or sounds in this folder which are under a separate license.
 
 However, I give permission to decompile, use and modify the decompiled code specifically for the purpose of creating Dawnsbury Days mods. For example, if you want to adjust how some feat works, it is okay to copy its decompiled code into your own mod, or to use it as a base for your own feat. 
+
+Note that if you create and distribute your own mod for Dawnsbury Days, and your mod makes use of OGL or ORC content, you will need to include an appropriate OGL or ORC copyright notice with your mod. The instructions on how to do so are in the Steam Workshop Uploader folder within the game.
 
 ## Support
 

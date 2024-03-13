@@ -19,7 +19,9 @@
       that's in the parent folder. That is merely a launcher which doesn't contain any effective code. Uncomment the following code and adjust the destination folder so that
       it points to the CustomMods folder in the installation directory: -->
     <!--    <ItemGroup>-->
-    <!--        <Reference Include="../../Data/Dawnsbury Days.exe" />-->
+    <!--        <Reference Include="../../Data/Dawnsbury Days.dll" />-->
+    <!--        <Reference Include="../../Data/Common.dll" />-->
+    <!--        <Reference Include="../../Data/MonoGame.Framework.dll" />-->
     <!--    </ItemGroup>-->
     <!--    <Target Name="CopyToGameModsFolder" AfterTargets="Build"> -->
     <!--        <Copy SourceFiles="$(TargetPath)" DestinationFolder="../../CustomMods" />-->
