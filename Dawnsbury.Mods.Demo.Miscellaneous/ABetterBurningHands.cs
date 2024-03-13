@@ -20,7 +20,7 @@ public static class ABetterBurningHands
 {
     public static void Apply()
     {
-        ModManager.ReplaceExistingSpell(SpellId.BurningHands, 1, (spellcaster, level, inCombat) =>
+        ModManager.ReplaceExistingSpell(SpellId.BurningHands, 1, (spellcaster, level, inCombat, spellInformation) =>
         {
             // Code copy-pasted from normal Burning Hands code, except:
             // -> Area increased to 60-foot cone
