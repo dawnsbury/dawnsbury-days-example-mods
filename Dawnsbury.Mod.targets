@@ -7,10 +7,24 @@
         <NoWarn>1998</NoWarn> <!-- Dawnsbury Days uses many async methods, and you often won't want to make any await calls in them. -->
         <WarningsAsErrors>0618</WarningsAsErrors> <!-- Makes the "You're using obsolete stuff." warning into an error so that you're aware when Dawnsbury Days code is going to be changed. -->
     </PropertyGroup>
-    <!-- Dawnsbury Studios uses the following item group to interact with Dawnsbury Days source code. You don't have access to the source code so comment it out. -->
+    <!-- Dawnsbury Studios uses the following item and property group to interact with Dawnsbury Days source code. You don't have access to the source code so comment it out. -->
     <!--    Comment the following code out: -->
+    <PropertyGroup>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="../../Maingame/Dawnsbury Days.csproj"/>
+        <ProjectReference Include="..\..\Common\Common.csproj">
+            <CopyLocal>false</CopyLocal>
+            <Private>false</Private>
+            <PrivateAssets>all</PrivateAssets>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Maingame\Dawnsbury Days.csproj">
+            <CopyLocal>false</CopyLocal>
+            <Private>false</Private>
+            <PrivateAssets>all</PrivateAssets>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+        </ProjectReference>
     </ItemGroup>
     <Target Name="CopyToGameModsFolder" AfterTargets="Build" Condition="'$(InstallIntoDevelopmentEnvironment)' == 'true'">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="../../Maingame/bin/$(Configuration)/win-x64/CustomMods" />
