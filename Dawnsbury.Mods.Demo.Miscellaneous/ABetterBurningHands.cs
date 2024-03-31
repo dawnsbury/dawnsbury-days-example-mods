@@ -52,7 +52,7 @@ public static class ABetterBurningHands
         {
             if (spell.SpellId == SpellId.BurningHands)
             {
-                (spell.Target as ConeAreaTarget).ConeLength = 40; // I changed my mind, actually make the cone super big, ha ha!
+                ((ConeAreaTarget)spell.Target).ConeLength = 40; // I changed my mind, actually make the cone super big, ha ha!
                 
                 // Unfortunately, we do need to rewrite the description manually...
                 spell.Description = Spells.CreateInitialDescriptionBlock(spell.Target, SpellSavingThrow.Basic(Defense.Reflex), "Gouts of flame rush from your hands IN A 200-FOOT CONE!!!!!!") +

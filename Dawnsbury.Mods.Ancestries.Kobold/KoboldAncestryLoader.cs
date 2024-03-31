@@ -137,7 +137,7 @@ public static class KoboldAncestryLoader
                                 .WithActionCost(2)
                                 .WithProjectileCone(IllustrationName.BreathWeapon, 15, ProjectileKind.Cone)
                                 .WithSoundEffect(SfxName.FireRay)
-                                .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, (breathOwner) => 13 + breathOwner.Level + GetBestAbility(breathOwner)))
+                                .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, (breathOwner) => 13 + breathOwner!.Level + GetBestAbility(breathOwner)))
                                 .WithEffectOnEachTarget((async (spell, caster, target, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (caster.Level + 1) / 2 + "d4", draconicExemplar.DamageKind); }))
                                 .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                                 {
