@@ -61,7 +61,7 @@ public class AutomaticBonusProgression
             );
         foreach (var skill in Skills.RelevantSkills)
         {
-            var feat = new Feat(FeatName.CustomFeat, null, "You gain a +1 potency bonus to " + skill + ".", new List<Trait>() { skillPotencyTrait }, null)
+            var feat = new Feat(ModManager.RegisterFeatName("Skill Potency: " + skill), null, "You gain a +1 potency bonus to " + skill + ".", new List<Trait>() { skillPotencyTrait }, null)
                 .WithOnCreature((sheet, cr) =>
                 {
                     cr.AddQEffect(new QEffect("Skill Potency (Lv.3)", "You have a +1 potency bonus to " + skill + ".")
@@ -76,8 +76,7 @@ public class AutomaticBonusProgression
                             return null;
                         }
                     });
-                })
-                .WithCustomName("Skill Potency: " + skill);
+                });
             ModManager.AddFeat(feat);
         }
         

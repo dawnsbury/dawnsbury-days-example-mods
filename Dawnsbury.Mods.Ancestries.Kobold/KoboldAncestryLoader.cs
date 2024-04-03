@@ -38,7 +38,7 @@ public static class KoboldAncestryLoader
         AddFeats(CreateKoboldAncestryFeats());
 
         ModManager.AddFeat(new AncestrySelectionFeat(
-                FeatName.CustomFeat,
+                ModManager.RegisterFeatName("Kobold"),
                 "Every kobold knows that their slight frame belies true, mighty draconic power. They are ingenious crafters and devoted allies within their warrens, but those who trespass into their territory find them to be inspired skirmishers, especially when they have the backing of a draconic sorcerer or true dragon overlord. However, these reptilian opportunists prove happy to cooperate with other humanoids when it's to their benefit, combining caution and cunning to make their fortunes in the wider world.",
                 new List<Trait> { Trait.Humanoid, KoboldTrait },
                 6,
@@ -51,7 +51,6 @@ public static class KoboldAncestryLoader
                 },
                 CreateKoboldHeritages().ToList())
             .WithAbilityFlaw(Ability.Constitution)
-            .WithCustomName("Kobold")
             .WithOnSheet(sheet =>
             {
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("DraconicExemplar", "Draconic exemplar", 1,
@@ -196,16 +195,14 @@ public static class KoboldAncestryLoader
     {
         var featName = "Draconic exemplar: " + name;
         DraconicExemplarDescription.DraconicExemplarDescriptions.Add(featName, draconicExemplarDescription);
-        return new Feat(FeatName.CustomFeat, flavorText, rulesText, new List<Trait>(), null)
-            .WithCustomName(featName);
+        return new Feat(ModManager.RegisterFeatName(featName), flavorText, rulesText, new List<Trait>(), null);
     }
 
     private static IEnumerable<Feat> CreateKoboldHeritages()
     {
-        yield return new HeritageSelectionFeat(FeatName.CustomFeat,
+        yield return new HeritageSelectionFeat(ModManager.RegisterFeatName("Unusual Kobold"),
                 "You're not like most other kobolds and don't share their fragile builds.",
                 "You have two free ability boosts instead of a kobold's normal ability boosts and flaw.")
-            .WithCustomName("Unusual Kobold")
             .WithOnSheet((sheet) =>
             {
                 sheet.AbilityBoostsFabric.AbilityFlaw = null;
@@ -216,10 +213,9 @@ public static class KoboldAncestryLoader
                         new FreeAbilityBoost()
                     };
             });
-        yield return new HeritageSelectionFeat(FeatName.CustomFeat,
+        yield return new HeritageSelectionFeat(ModManager.RegisterFeatName("Dragonscaled Kobold"),
                 "Your scales are especially colorful, possessing some of the same resistance a dragon possesses.",
                 "You gain resistance equal to half your level (rounded up) to the damage type associated with your draconic exemplar. Double this resistance against dragons' Breath Weapons.")
-            .WithCustomName("Dragonscaled Kobold")
             .WithOnCreature((sheet, creature) =>
             {
                 var exemplarFeat = sheet.AllFeats.FirstOrDefault(ft => ft.Name.StartsWith("Draconic exemplar:"));
@@ -248,10 +244,9 @@ public static class KoboldAncestryLoader
                     });
                 }
             });
-        yield return new HeritageSelectionFeat(FeatName.CustomFeat,
+        yield return new HeritageSelectionFeat(ModManager.RegisterFeatName("Strongjaw Kobold"),
                 "Your bloodline is noted for their powerful jaws and sharp teeth.",
                 "You gain a jaws unarmed attack that deals 1d6 piercing damage. Your jaws have the finesse and unarmed traits.")
-            .WithCustomName("Strongjaw Kobold")
             .WithOnCreature(creature =>
             {
                 creature.AddQEffect(new QEffect("Strongjaw", "You have a jaws attack.")
@@ -261,10 +256,9 @@ public static class KoboldAncestryLoader
                         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
                 });
             });
-        yield return new HeritageSelectionFeat(FeatName.CustomFeat,
+        yield return new HeritageSelectionFeat(ModManager.RegisterFeatName("Venomtail Kobold"),
                 "A vestigial spur in your tail secretes one dose of deadly venom each day.",
                 "You gain the Tail Toxin action which allows you to apply your tail's venom to a piercing or slashing weapon once per day. If your next Strike with that weapon before the end of your next turn hits and deals damage, you deal persistent poison damage equal to your level to the target.")
-            .WithCustomName("Venomtail Kobold")
             .WithOnCreature(creature =>
             {
                 if (creature.PersistentUsedUpResources.UsedUpActions.Contains("Tail Toxin")) return;
