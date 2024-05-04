@@ -9,7 +9,7 @@ Mods don't run in any sandbox. They're executable .NET code which has full privi
 
 ## How to create a mod
 1. Create a new .NET class library project, for example using Microsoft Visual Studio.
-2. Set the platform to `x64`, platform target to `x64` and the target framework to `net6.0-windows`.
+2. Set the platform to `x64`, platform target to `x64` and the target framework to `net8.0-windows`.
 3. Reference the following assemblies from your installation folder as assembly references of your project:
    1. the assembly `Data/Dawnsbury Days.dll`;
    2. the assembly `Data/Common.dll`;
