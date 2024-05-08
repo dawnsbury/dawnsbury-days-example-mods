@@ -5,7 +5,10 @@
         <Platform>x64</Platform>
         <PlatformTarget>x64</PlatformTarget>
         <Nullable>enable</Nullable>
-        <NoWarn>1998</NoWarn> <!-- Dawnsbury Days uses many async methods, and you often won't want to make any await calls in them. -->
+        <!-- Warning suppressions: -->
+        <!-- 1998: Dawnsbury Days uses many async methods, and you often won't want to make any await calls in them. -->
+        <!-- NETSDK1206: An obscure .NET SDK warning caused by the fact that we're a .NET 8 code making use of .NET 6 MonoGame engine. This can be removed after MonoGame 3.9 releases. -->
+        <NoWarn>1998;NETSDK1206</NoWarn>
         <WarningsAsErrors>0618</WarningsAsErrors> <!-- Makes the "You're using obsolete stuff." warning into an error so that you're aware when Dawnsbury Days code is going to be changed. -->
     </PropertyGroup>
     <!-- Dawnsbury Studios uses the following item and property group to interact with Dawnsbury Days source code. You don't have access to the source code so comment it out. -->
