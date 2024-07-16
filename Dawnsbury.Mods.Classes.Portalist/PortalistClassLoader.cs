@@ -212,7 +212,7 @@ public static class PortalistClassLoader
                             var originalPlace = caster.Occupies;
                             // caster.PersistentUsedUpResources.Used/UpActions.Add(SUsedPoint);
                             PortalistTeleport(caster, targets.ChosenTile!);
-                            await CommonCombatActions.StrikeAdjacentCreature(caster);
+                            await CommonCombatActions.StrikeAdjacentCreature(caster, null);
                             PortalistTeleport(caster, originalPlace);
                         });
                     return Wrap(action);
