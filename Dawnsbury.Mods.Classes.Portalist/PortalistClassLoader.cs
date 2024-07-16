@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
+using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
@@ -161,7 +163,7 @@ public static class PortalistClassLoader
                 qf.ProvideMainAction = qff =>
                 {
                     var action = CreateNormalPortal(qff, IllPortal, "Ally Portal", "Choose a target square, then choose an adjacent ally.\n\nYou teleport as normal, then you pull your ally through the portal to an adjacent square of your choice.");
-                    ((TileTarget)action.Target).AdditionalTargetingRequirement = (creature, tile) => creature.Occupies.Neighbours.Creatures.Any(cr => cr.FriendOf(creature)) ? Usability.Usable : Usability.NotUsable("You don't have an adjacent ally.");
+                    ((TileTarget)action.Target).AdditionalTargetingRequirement = (creature, tile) => creature.Occupies != null && creature.Occupies.Neighbours.Creatures.Any(cr => cr.FriendOf(creature)) ? Usability.Usable : Usability.NotUsable("You don't have an adjacent ally.");
                     action.WithEffectOnChosenTargets((async (spell, caster, targets) =>
                     {
                         var ally = await caster.Battle.AskToChooseACreature(caster, caster.Occupies.Neighbours.Creatures.Where(cr => cr.FriendOf(caster)), IllPortal, "Choose an ally to teleport alongside you.", "Teleport this ally.", "Cancel");
@@ -197,7 +199,7 @@ public static class PortalistClassLoader
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Boomerang Portal"), 1, "You swiftly move in and out of combat.",
                 "Teleport as normal, then make a single melee Strike, then teleport back to the square where you started.", [TPortalist, Trait.Flourish])
-            .WithActionCost(2)
+            .WithActionCost(1)
             .WithIllustration(IllustrationName.AerialBoomerang256)
             .WithPermanentQEffect("You can teleport, make a melee Strike, then teleport back.", qf =>
             {
@@ -275,7 +277,7 @@ public static class PortalistClassLoader
                             {
                                 Possibilities =
                                 [
-                                    new ActionPossibility(new CombatAction(qff.Owner, IllustrationName.SteelShield, "Shield only", [TPortalist, Trait.Flourish],
+                                    new ActionPossibility(new CombatAction(qff.Owner, IllustrationName.SteelShield, "Shield only", [TPortalist, Trait.Flourish, Trait.Basic],
                                         "You gain a +2 circumstance bonus to your AC until you move or until the beginning of your next turn.", Target.Self())
                                         .WithSoundEffect(SfxName.RaiseShield)
                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => { AddShieldBonus(caster); })),
@@ -296,7 +298,7 @@ public static class PortalistClassLoader
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Double-Hop Portal"), 1, "You create two portals, jump into the first one, then out the first one into the second.",
                 "Teleport as normal. Then do it again.", [TPortalist, Trait.Flourish])
-            .WithActionCost(2)
+            .WithActionCost(1)
             .WithIllustration(new SideBySideIllustration(IllPortal, IllPortal))
             .WithPermanentQEffect("Teleport as normal. Then do it again.", qf =>
             {
@@ -337,7 +339,22 @@ public static class PortalistClassLoader
                         .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                         {
                             var damageKind = spell.ChosenVariant!.ToEnergyDamageKind();
-                            // TODO inflict the damage
+                            var targetTile = targets.ChosenTile!;
+                            var areaParticles = await CommonAnimations.CreateConeAnimation(caster.Battle, targetTile.ToCenterVector(), new Tile[] { targetTile }.Concat(targetTile.Neighbours.Select(e => e.Tile)).ToList(), 20, ProjectileKind.Cone, null);
+                            int dcClass = caster.PersistentCharacterSheet!.Class != null ? caster.Proficiencies.Get(caster.PersistentCharacterSheet.Class.ClassTrait).ToNumber(caster.Level)
+                                                                                           + caster.Abilities.Get(caster.Abilities.KeyAbility) + 10 : 10;
+                            int dcSpell = caster.Spellcasting != null ? caster.Proficiencies.Get(Trait.Spell).ToNumber(caster.Level) + 10 + caster.Spellcasting.Sources.Max(source => source.SpellcastingAbilityModifier) : 10;
+                            int dc = Math.Max(dcClass, dcSpell);
+                            foreach (var target in targetTile.Neighbours.CreaturesPlusCreatureOnSelf)
+                            {
+                                var save = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Reflex, caster2 => dc);
+                                await CommonSpellEffects.DealBasicDamage(spell, caster, target, save, ((caster.Level + 1) / 2) + "d6", damageKind);
+                            }
+
+                            if (await caster.Battle.AskForConfirmation(caster, IllPortal, "Teleport into the area of the elemental blast?", "Teleport"))
+                            {
+                                PortalistTeleport(caster, targetTile);
+                            }
                         }))
                     );
                 };
@@ -351,7 +368,7 @@ public static class PortalistClassLoader
                 qf.Id = QShieldingPortal;
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(new CombatAction(qff.Owner, IllustrationName.ForbiddingWard, "Shielding Portal", [TPortalist, Trait.Flourish], "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", Target.Self())
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.ForbiddingWard, "Shielding Portal", [TPortalist, Trait.Flourish, Trait.Basic], "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", Target.Self())
                         .WithEffectOnEachTarget(async (spell, caster, target, result) =>
                         {
                             caster.AddQEffect(new QEffect("Shielding Portal", "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", ExpirationCondition.ExpiresAtStartOfYourTurn, caster, IllustrationName.ForbiddingWard)
@@ -382,7 +399,7 @@ public static class PortalistClassLoader
                 qf.Id = QSummoningPortal;
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", new[] { Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist }, "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", new[] { Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist, Trait.Basic }, "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
                         .WithActionCost(3)
                         .WithSoundEffect(SfxName.Summoning)
                         .WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= 1).Select(animal => new SpellVariant(animal.Name, animal.Name, animal.Illustration)).ToArray())
@@ -405,7 +422,12 @@ public static class PortalistClassLoader
         {
             OverriddenTargetLine = "{b}Range{/b} " + (range*5) + " feet"
         };
-        return new CombatAction(portalist, illustration, name, [TPortalist, Trait.Move, Trait.Flourish], description, target)
+        List<Trait> traits = [TPortalist, Trait.Move, Trait.Flourish];
+        if (name != "Standard Portal")
+        {
+            traits.Add(Trait.Basic);
+        }
+        return new CombatAction(portalist, illustration, name, traits.ToArray(), description, target)
             .WithSoundEffect(SfxName.PhaseBolt);
     }
 
@@ -423,6 +445,26 @@ public static class PortalistClassLoader
 
     private static Possibility Wrap(CombatAction portalAction)
     {
+        if (portalAction.Variants != null)
+        {
+            ChooseVariantThenActionPossibility CreateVariantPossibility(SpellVariant variant)
+            {
+                return new ChooseVariantThenActionPossibility(portalAction, variant.Illustration, variant.Name, variant, portalAction.Target.CanBeginToUse(portalAction.Owner), PossibilitySize.Full);
+            }
+
+            return new SubmenuPossibility(portalAction.Illustration, portalAction.Name, PossibilitySize.Full)
+            {
+                SpellIfAny = portalAction,
+                Subsections =
+                {
+                    new PossibilitySection(portalAction.Name)
+                    {
+                        Possibilities = portalAction.Variants.Select(CreateVariantPossibility).Cast<Possibility>().ToList()
+                    }
+                },
+               PossibilityGroup = CREATE_A_PORTAL
+            };
+        }
         //var pointsLeft = GetPortalPoints(portalAction.Owner);
         return new ActionPossibility(portalAction).WithPossibilityGroup(CREATE_A_PORTAL); //  [" + pointsLeft + " points]");
     }
