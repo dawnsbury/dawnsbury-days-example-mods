@@ -21,13 +21,13 @@ public class AutomaticBonusProgression
                 // Attack potency
                 if (self.Level >= 2)
                 {
-                    self.AddQEffect(new QEffect("Attack Potency (Lv.2)", "You have a +1 potency bonus to attack rolls.")
+                    self.AddQEffect(new QEffect("Attack Potency (Lv.2)", "You have a +1 item bonus to attack rolls.")
                     {
                         BonusToAttackRolls = (qfSelf, combatAction, defender) =>
                         {
                             if (combatAction.Item != null && (combatAction.Item.HasTrait(Trait.Weapon) || combatAction.Item.HasTrait(Trait.Unarmed)))
                             {
-                                return new Bonus(1, BonusType.Untyped, "Potency");
+                                return new Bonus(1, BonusType.Item, "Automatic Bonus Progression");
                             }
 
                             return null;
@@ -61,16 +61,16 @@ public class AutomaticBonusProgression
             );
         foreach (var skill in Skills.RelevantSkills)
         {
-            var feat = new Feat(ModManager.RegisterFeatName("Skill Potency: " + skill), null, "You gain a +1 potency bonus to " + skill + ".", new List<Trait>() { skillPotencyTrait }, null)
+            var feat = new Feat(ModManager.RegisterFeatName("Skill Potency: " + skill), null, "You gain a +1 item bonus to " + skill + ".", new List<Trait>() { skillPotencyTrait }, null)
                 .WithOnCreature((sheet, cr) =>
                 {
-                    cr.AddQEffect(new QEffect("Skill Potency (Lv.3)", "You have a +1 potency bonus to " + skill + ".")
+                    cr.AddQEffect(new QEffect("Skill Potency (Lv.3)", "You have a +1 item bonus to " + skill + ".")
                     {
                         BonusToSkills = (bonusToWhatSkill) =>
                         {
                             if (bonusToWhatSkill == skill)
                             {
-                                return new Bonus(1, BonusType.Untyped, "Potency");
+                                return new Bonus(1, BonusType.Item, "Automatic Bonus Progression");
                             }
 
                             return null;
