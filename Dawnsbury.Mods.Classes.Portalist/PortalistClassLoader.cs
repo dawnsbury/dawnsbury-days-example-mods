@@ -260,6 +260,7 @@ public static class PortalistClassLoader
                     {
                         caster.AddQEffect(new QEffect("Covering Portal", "You have +2 to AC until you move.", ExpirationCondition.ExpiresAtStartOfYourTurn, caster, IllustrationName.SteelShield)
                         {
+                            BonusToDefenses = (effect, action, defense) => defense == Defense.AC ? new Bonus(2, BonusType.Circumstance, "Shielding Portal") : null,
                             AfterYouTakeAction = (async (effect, action) =>
                             {
                                 if (action.HasTrait(Trait.Move) && !action.HasTrait(Trait.Flourish))
@@ -340,7 +341,7 @@ public static class PortalistClassLoader
                         {
                             var damageKind = spell.ChosenVariant!.ToEnergyDamageKind();
                             var targetTile = targets.ChosenTile!;
-                            var areaParticles = await CommonAnimations.CreateConeAnimation(caster.Battle, targetTile.ToCenterVector(), new Tile[] { targetTile }.Concat(targetTile.Neighbours.Select(e => e.Tile)).ToList(), 20, ProjectileKind.Cone, null);
+                            var areaParticles = await CommonAnimations.CreateConeAnimation(caster.Battle, targetTile.ToCenterVector(), new Tile[] { targetTile }.Concat(targetTile.Neighbours.Select(e => e.Tile)).ToList(), 20, ProjectileKind.Cone, IllustrationName.EnergyEmanation);
                             int dcClass = caster.PersistentCharacterSheet!.Class != null ? caster.Proficiencies.Get(caster.PersistentCharacterSheet.Class.ClassTrait).ToNumber(caster.Level)
                                                                                            + caster.Abilities.Get(caster.Abilities.KeyAbility) + 10 : 10;
                             int dcSpell = caster.Spellcasting != null ? caster.Proficiencies.Get(Trait.Spell).ToNumber(caster.Level) + 10 + caster.Spellcasting.Sources.Max(source => source.SpellcastingAbilityModifier) : 10;
@@ -377,9 +378,10 @@ public static class PortalistClassLoader
                                 {
                                     if (action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack))
                                     {
-                                        if (await effect.Owner.Battle.AskToUseReaction(effect.Owner, "You're about to be targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
+                                        if (await effect.Owner.Battle.AskToUseReaction(effect.Owner, "You're targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
                                         {
                                             effect.Owner.Occupies.Overhead("deflected", Color.White, effect.Owner + " deflected the projectile with Shielding Portal.");
+                                            sb.AppendLine("Projectile deflected by Shielding Portal.");
                                             return true;
                                         }
                                     }
