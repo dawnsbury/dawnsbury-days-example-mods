@@ -19,8 +19,11 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
 using Microsoft.Xna.Framework;
 
@@ -311,7 +314,7 @@ public static class PortalistClassLoader
                             }));
                             await caster.Battle.GameLoop.FullCast(portal);
                         })));
-                }
+                };
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Elemental Blast Portal"), 2, "You cause the extradimensional matter of a portal to explode in an unstable vortex of elemental energy.",
                 "Create a portal as normal, and deal 1d6 acid, electricity, fire, cold or sonic damage to each creature in the target square or adjacent to it (basic Reflex save against your class DC mitigates). Afterwards, you may choose to teleport there as normal.\n\nThe damage increases by 1d6 on level 3, and every two levels afterwards.", [TPortalist, Trait.Flourish])
@@ -320,6 +323,24 @@ public static class PortalistClassLoader
             .WithPermanentQEffect("You can open a portal explosively to deal elemental damage.", qf =>
             {
                 qf.Id = QElementalBlastPortal;
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(CreateNormalPortal(qff, IllustrationName.EnergyEmanation, "Elemental Blast Portal", $"Create a portal as normal, and deal {S.HeightenedVariable((qff.Owner.Level + 1) / 2, 1)}d6 acid, electricity, fire, cold or sonic damage to each creature in the target square or adjacent to it (basic Reflex save against your class DC mitigates). Afterwards, you may choose to teleport there as normal.")
+                        .WithVariants(new[]
+                        {
+                            new SpellVariant("Acid", "Acid", IllustrationName.ResistAcid),
+                            new SpellVariant("Cold", "Cold", IllustrationName.ResistCold),
+                            new SpellVariant("Electricity", "Electricity", IllustrationName.ResistElectricity),
+                            new SpellVariant("Fire", "Fire", IllustrationName.ResistFire),
+                            new SpellVariant("Sonic", "Sonic", IllustrationName.ResistSonic)
+                        })
+                        .WithEffectOnChosenTargets((async (spell, caster, targets) =>
+                        {
+                            var damageKind = spell.ChosenVariant!.ToEnergyDamageKind();
+                            // TODO inflict the damage
+                        }))
+                    );
+                };
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Shielding Portal"), 2, "You prepare to summon a portal at a moment's notice that would shunt away incoming projectiles.",
                 "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", [TPortalist, Trait.Flourish])
@@ -328,6 +349,29 @@ public static class PortalistClassLoader
             .WithPermanentQEffect("You can prepare a reaction to deflect an incoming projectile.", qf =>
             {
                 qf.Id = QShieldingPortal;
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.ForbiddingWard, "Shielding Portal", [TPortalist, Trait.Flourish], "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", Target.Self())
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) =>
+                        {
+                            caster.AddQEffect(new QEffect("Shielding Portal", "Until your next turn, if you'd be the target of a ranged attack (including a ranged spell attack, but not a spell that requires a save), you can spend {icon:Reaction} a reaction. If you do, the attack automatically misses as the projectile is deflected into a portal.", ExpirationCondition.ExpiresAtStartOfYourTurn, caster, IllustrationName.ForbiddingWard)
+                            {
+                                FizzleIncomingActions = (async (effect, action, sb) =>
+                                {
+                                    if (action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack))
+                                    {
+                                        if (await effect.Owner.Battle.AskToUseReaction(effect.Owner, "You're about to be targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
+                                        {
+                                            effect.Owner.Occupies.Overhead("deflected", Color.White, effect.Owner + " deflected the projectile with Shielding Portal.");
+                                            return true;
+                                        }
+                                    }
+
+                                    return false;
+                                })
+                            });
+                        }));
+                };
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Summoning Portal"), 4, "You don't cross your portal and instead use it to call in creatures of energy.",
                 "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", [TPortalist, Trait.Flourish])
@@ -336,6 +380,15 @@ public static class PortalistClassLoader
             .WithPermanentQEffect("You can summon elementals as per the {i}summon elemental{/i} spell.", qf =>
             {
                 qf.Id = QSummoningPortal;
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", new[] { Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist }, "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
+                        .WithActionCost(3)
+                        .WithSoundEffect(SfxName.Summoning)
+                        .WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= 1).Select(animal => new SpellVariant(animal.Name, animal.Name, animal.Illustration)).ToArray())
+                        .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
+                        .WithEffectOnChosenTargets((async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); })));
+                };
             });
     }
 
