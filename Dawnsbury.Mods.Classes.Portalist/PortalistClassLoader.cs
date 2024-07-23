@@ -329,6 +329,7 @@ public static class PortalistClassLoader
                 qf.ProvideMainAction = qff =>
                 {
                     return Wrap(CreateNormalPortal(qff, IllustrationName.EnergyEmanation, "Elemental Blast Portal", $"Create a portal as normal, and deal {S.HeightenedVariable((qff.Owner.Level + 1) / 2, 1)}d6 acid, electricity, fire, cold or sonic damage to each creature in the target square or adjacent to it (basic Reflex save against your class DC mitigates). Afterwards, you may choose to teleport there as normal.")
+                        .WithActionCost(2)
                         .WithVariants(new[]
                         {
                             new SpellVariant("Acid", "Acid", IllustrationName.ResistAcid),
