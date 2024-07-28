@@ -31,7 +31,7 @@ public class ScarecrowMod
                 leerAction.Traits.Add(Trait.Mental);
                 leerAction.Traits.Add(Trait.Emotion);
                 leerAction.Traits.Add(Trait.Visual);
-                var result = CommonSpellEffects.RollSavingThrow(target, leerAction, Defense.Will, _ => 18);
+                var result = CommonSpellEffects.RollSavingThrow(target, leerAction, Defense.Will, 18);
                 switch (result)
                 {
                     case CheckResult.CriticalSuccess:
