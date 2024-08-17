@@ -38,7 +38,7 @@ public static class KoboldAncestryLoader
         AddFeats(CreateKoboldAncestryFeats());
 
         ModManager.AddFeat(new AncestrySelectionFeat(
-                ModManager.RegisterFeatName("Kobold"),
+                ModManager.RegisterFeatName("ModKobold", "Kobold"), // We can't use the name "Kobold" because that's already that name of our trait, and the feat technical name and the trait technical name would conflict.
                 "Every kobold knows that their slight frame belies true, mighty draconic power. They are ingenious crafters and devoted allies within their warrens, but those who trespass into their territory find them to be inspired skirmishers, especially when they have the backing of a draconic sorcerer or true dragon overlord. However, these reptilian opportunists prove happy to cooperate with other humanoids when it's to their benefit, combining caution and cunning to make their fortunes in the wider world.",
                 new List<Trait> { Trait.Humanoid, KoboldTrait },
                 6,
