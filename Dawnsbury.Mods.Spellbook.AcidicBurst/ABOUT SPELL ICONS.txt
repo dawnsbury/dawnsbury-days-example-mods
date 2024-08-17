@@ -4,4 +4,4 @@ If you want your spell icon to look similar to the built-in icons (with the fade
 
 1. Start with a 256x256 base image.
 2. Expand the canvas to 280x280, using transparent background color, keeping the base image in the center.
-3. Use the "Alpha Blur" plugin for BoltBait's plugin pack (you'll need to download it separately), using Radius 10 and Shift in -35.
+3. Use the "Alpha Blur" plugin for Tanel's plugin pack (you'll need to download it separately from https://forums.getpaint.net/topic/24280-alpha-blur-v2-2012-03-05/), using Radius 10 and Shift in -35.
