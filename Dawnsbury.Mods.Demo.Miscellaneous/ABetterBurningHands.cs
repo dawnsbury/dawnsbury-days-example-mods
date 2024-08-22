@@ -30,9 +30,10 @@ public static class ABetterBurningHands
                     "Burning Hands",
                 new[] { Trait.Evocation, Trait.Fire, Trait.Arcane, Trait.Primal },
                     "Gouts of flame rush from your hands IN A SIXTY-FOOT CONE!!!",
-                    "Deal " + S.HeightenedVariable(2 * level, 2) + "d6 fire damage to enemy creatures in the area only (allies are safe!)." + S.HeightenedDamageIncrease(level, inCombat, "2d6"),
+                    "Deal " + S.HeightenedVariable(2 * level, 2) + "d6 fire damage to enemy creatures in the area only (allies are safe!).",
                     Target.Cone(12), // HA HA HA!! ALL WILL BURN!!!
                     level, SpellSavingThrow.Basic(Defense.Reflex))
+                .WithHeighteningOfDamageEveryLevel(level, 1, inCombat, "2d6")
                 .WithSoundEffect(SfxName.Fireball)
                 .WithNoSaveFor((spell, target)=> target.FriendOf(spell.Owner)) // Allies don't need to make a saving throw.
                 .WithEffectOnEachTarget((async (spell, caster, target, checkResult) =>
@@ -56,7 +57,7 @@ public static class ABetterBurningHands
                 
                 // Unfortunately, we do need to rewrite the description manually...
                 spell.Description = Spells.CreateInitialDescriptionBlock(spell.Target, SpellSavingThrow.Basic(Defense.Reflex), "Gouts of flame rush from your hands IN A 200-FOOT CONE!!!!!!") +
-                                    "Deal " + S.HeightenedVariable(2 * spell.SpellLevel, 2) + "d6 fire damage to enemy creatures in the area only (allies are safe!)." + S.HeightenedDamageIncrease(spell.SpellLevel, false, "2d6");
+                                    "Deal " + S.HeightenedVariable(2 * spell.SpellLevel, 2) + "d6 fire damage to enemy creatures in the area only (allies are safe!).\n\n{b}Heightened (+1){/b} The damage increases by 2d6.";
             }
         });
 
