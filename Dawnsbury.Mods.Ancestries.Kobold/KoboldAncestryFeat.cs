@@ -5,8 +5,8 @@ namespace Dawnsbury.Mods.Ancestries.Kobold;
 
 public class KoboldAncestryFeat : TrueFeat
 {
-    public KoboldAncestryFeat(string name, string flavorText, string rulesText)
-        : base(ModManager.RegisterFeatName(name), 1, flavorText, rulesText, new[]
+    public KoboldAncestryFeat(string name, string flavorText, string rulesText, int level)
+        : base(ModManager.RegisterFeatName(name), level, flavorText, rulesText, new[]
         {
             KoboldAncestryLoader.KoboldTrait,
             // The following line is not needed -- because we registered the Kobold trait as an ancestry trait, the Ancestry trait is added automatically.

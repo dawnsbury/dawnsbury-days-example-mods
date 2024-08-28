@@ -18,6 +18,8 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Modding;
 using Dawnsbury.Core;
+using Dawnsbury.Display;
+using Dawnsbury.Display.Text;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
@@ -28,9 +30,11 @@ public static class KoboldAncestryLoader
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
-        #if V2
+#if V3
+        ModManager.AssertV3();
+#else
         ModManager.AssertV2();
-        #endif 
+#endif
         
         KoboldTrait = ModManager.RegisterTrait(
             "Kobold",
@@ -44,15 +48,14 @@ public static class KoboldAncestryLoader
         ModManager.AddFeat(new AncestrySelectionFeat(
                 ModManager.RegisterFeatName("ModKobold", "Kobold"), // We can't use the name "Kobold" because that's already that name of our trait, and the feat technical name and the trait technical name would conflict.
                 "Every kobold knows that their slight frame belies true, mighty draconic power. They are ingenious crafters and devoted allies within their warrens, but those who trespass into their territory find them to be inspired skirmishers, especially when they have the backing of a draconic sorcerer or true dragon overlord. However, these reptilian opportunists prove happy to cooperate with other humanoids when it's to their benefit, combining caution and cunning to make their fortunes in the wider world.",
-                new List<Trait> { Trait.Humanoid, KoboldTrait },
+                [Trait.Humanoid, KoboldTrait],
                 6,
                 5,
-                new List<AbilityBoost>()
-                {
+                [
                     new EnforcedAbilityBoost(Ability.Dexterity),
                     new EnforcedAbilityBoost(Ability.Charisma),
                     new FreeAbilityBoost()
-                },
+                ],
                 CreateKoboldHeritages().ToList())
             .WithAbilityFlaw(Ability.Constitution)
             .WithOnSheet(sheet =>
@@ -76,7 +79,7 @@ public static class KoboldAncestryLoader
         yield return new KoboldAncestryFeat(
                 "Draconic Sycophant",
                 "You have an affect that dragonkind find unusually pleasing—and when that fails, you know when to duck.",
-                "You gain a +2 circumstance bonus to saving throws against dragons.")
+                "You gain a +2 circumstance bonus to saving throws against dragons.", 1)
             .WithOnCreature(creature =>
             {
                 creature.AddQEffect(new QEffect("Draconic Sycophant", "You have +2 to saves against dragons.")
@@ -97,7 +100,7 @@ public static class KoboldAncestryLoader
             });
         yield return new KoboldAncestryFeat("Dragon's Presence",
                 "As a member of dragonkind, you project unflappable confidence.",
-                "When you attempt to Demoralize a foe of your level or lower, you gain a +1 circumstance bonus to the Intimidation check.")
+                "When you attempt to Demoralize a foe of your level or lower, you gain a +1 circumstance bonus to the Intimidation check.", 1)
             .WithOnCreature(creature =>
             {
                 creature.AddQEffect(new QEffect("Dragon's Presence", "You have a +1 circumstance bonus to Demoralize.")
@@ -111,7 +114,7 @@ public static class KoboldAncestryLoader
             });
         yield return new KoboldAncestryFeat("Kobold Weapon Familiarity",
                 "You've trained with weapons ideal for subterranean efficiency.",
-                "You are trained with the crossbow and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.")
+                "You are trained with the crossbow and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.", 1)
             .WithOnSheet(sheet =>
             {
                 sheet.SetProficiency(Trait.SimpleCrossbow, Proficiency.Trained);
@@ -121,7 +124,7 @@ public static class KoboldAncestryLoader
             });
         yield return new KoboldAncestryFeat("Kobold Breath",
                 "You channel your draconic exemplar's power into a gout of energy.",
-                "You gain a breath weapon attack that manifests as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against the higher of your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.")
+                "You gain a breath weapon attack that manifests as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against the higher of your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level and every 2 levels thereafter, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.", 1)
             .WithActionCost(2)
             .WithOnCreature((sheet, creature) =>
             {
@@ -129,40 +132,86 @@ public static class KoboldAncestryLoader
                 if (exemplarFeat != null)
                 {
                     var draconicExemplar = DraconicExemplarDescription.DraconicExemplarDescriptions[exemplarFeat.Name];
-                    creature.AddQEffect(new QEffect("Breath Weapon", "You have a breath weapon.")
+                    creature.AddQEffect(new QEffect("Kobold breath", "You have a breath weapon.")
                     {
                         ProvideMainAction = (qfSelf) =>
                         {
                             var kobold = qfSelf.Owner;
-                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath Weapon", Array.Empty<Trait>(),
-                                    "You manifest as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.",
+                            var dc = kobold.ClassOrSpellDC();
+                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath weapon", [],
+                                    "{b}Area{/b} " + (draconicExemplar.IsCone ? "15-foot cone" : "30-foot line") + "\n{b}Saving throw{/b} basic Reflex\n\nDeal " + S.HeightenedVariable((kobold.Level + 1) / 2, 1) + "d4 " + draconicExemplar.DamageKind.HumanizeTitleCase2().ToLower() + " damage (basic DC " + dc + " Reflex save mitigates).\n\nThen you can't use Breath weapon again for 1d4 rounds.",
                                     draconicExemplar.IsCone ? Target.Cone(3) : Target.Line(6))
                                 .WithActionCost(2)
                                 .WithProjectileCone(IllustrationName.BreathWeapon, 15, ProjectileKind.Cone)
                                 .WithSoundEffect(SfxName.FireRay)
-                                .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, 13 + kobold!.Level + GetBestAbility(kobold)))
+                                .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, dc))
                                 .WithEffectOnEachTarget((async (spell, caster, target, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (caster.Level + 1) / 2 + "d4", draconicExemplar.DamageKind); }))
-                                .WithEffectOnChosenTargets((async (spell, caster, targets) =>
-                                {
-                                    caster.AddQEffect(QEffect.CannotUseForXRound("Breath Weapon", caster, R.Next(2, 5)));
-                                }))
+                                .WithEffectOnChosenTargets((async (spell, caster, targets) => { caster.AddQEffect(QEffect.CannotUseForXRound("Breath Weapon", caster, R.Next(2, 5))); }))
                             ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
                         }
                     });
                 }
             });
-    }
+#if V3
+        yield return new KoboldAncestryFeat("Winglets", "You're among the few kobolds who grow a set of draconic wings later in life. The wings are initially small and weak; while not enough for full flight, a strong flap allows you to jump further.",
+                "You gain Powerful Leap as an extra feat. {i}(You can jump 5 feet farther with the Leap action.){/i}", 5)
+            .WithOnSheet(values => values.GrantFeat(FeatName.PowerfulLeap));
+        yield return new KoboldAncestryFeat("Kobold Weapon Familiarity",
+                "You've trained with weapons ideal for subterranean efficiency.",
+                "You are trained with the crossbow, light pick, pick, and spear.",
+                1)
+            .WithOnSheet(values =>
+            {
+                values.SetProficiency(Trait.Crossbow, Proficiency.Trained);
+                values.SetProficiency(Trait.Pick, Proficiency.Trained);
+                values.SetProficiency(Trait.LightPick, Proficiency.Trained);
+                values.SetProficiency(Trait.Spear, Proficiency.Trained);
+            });
+        yield return new KoboldAncestryFeat("Kobold Weapon Innovator",
+                "You've learned devious tactics with your kobold weapons.",
+                "Whenever you critically hit with a crossbow, light pick, pick or spear, you trigger the weapon's {tooltip:criteffect}critical specialization effect.{/}", 5)
+            .WithPermanentQEffect("Your crossbows, picks and spears trigger {tooltip:criteffect}critical specialization effects.{/}", qf =>
+            {
+                qf.YouHaveCriticalSpecialization = (effect, item, action, defender) 
+                    => action.HasTrait(Trait.Crossbow) || action.HasTrait(Trait.Pick) || action.HasTrait(Trait.LightPick) || action.HasTrait(Trait.Spear);
+            });
+        yield return new KoboldAncestryFeat("Ally's Shelter",
+                "In stressful circumstances, you find strength in your allies' example.",
+                "When you're about to make a saving throw while adjacent to an ally, you may spend {icon:Reaction}a reaction. If you do, roll the save using your ally's base saving throw bonus instead of your own.", 5)
+            .WithActionCost(Constants.ACTION_COST_REACTION)
+            .WithPermanentQEffect("When you're about to make a saving throw while adjacent to an ally, as a reaction, you can roll the save using your ally's saving throw bonus instead of your own.", qf =>
+            {
+                qf.BeforeYourSavingThrow = async (effect, action, you) =>
+                {
+                    if (action.SavingThrow == null) return;
+                    var defense = action.SavingThrow.Defense;
+                    int bestBonus = 0;
+                    Creature? bestAlly = null;
+                    int yourBaseBonus = you.Defenses.GetBaseValue(defense);
+                    foreach (var ally in you.Occupies.Neighbours.Creatures.Where(cr => cr.FriendOf(you) && cr.Alive))
+                    {
+                        int allyBaseBonus = ally.Defenses.GetBaseValue(defense);
+                        int thisAllyOverbonus = allyBaseBonus - yourBaseBonus;
+                        if (thisAllyOverbonus > bestBonus)
+                        {
+                            bestBonus = thisAllyOverbonus;
+                            bestAlly = ally;
+                        }
+                    }
 
-    private static int GetBestAbility(Creature creature)
-    {
-        int bestAbility = 0;
-        if (creature.Abilities.Strength > bestAbility) bestAbility = creature.Abilities.Strength;
-        if (creature.Abilities.Dexterity > bestAbility) bestAbility = creature.Abilities.Dexterity;
-        if (creature.Abilities.Constitution > bestAbility) bestAbility = creature.Abilities.Constitution;
-        if (creature.Abilities.Intelligence > bestAbility) bestAbility = creature.Abilities.Intelligence;
-        if (creature.Abilities.Wisdom > bestAbility) bestAbility = creature.Abilities.Wisdom;
-        if (creature.Abilities.Charisma > bestAbility) bestAbility = creature.Abilities.Charisma;
-        return bestAbility;
+                    if (bestBonus > 0)
+                    {
+                        if (await you.AskToUseReaction("You're about to roll a save against " + action + ". Use Ally's Shelter to use " + bestAlly + "'s base saving throw bonus instead of yours, for an effective " + bestBonus.WithPlus() + " bonus?"))
+                        {
+                            you.AddQEffect(new QEffect(ExpirationCondition.EphemeralAtEndOfImmediateAction)
+                            {
+                                BonusToDefenses = (qEffect, combatAction, def) => def == defense && combatAction == action ? new Bonus(bestBonus, BonusType.Untyped, "Ally's Shelter") : null
+                            });
+                        }
+                    }
+                };
+            });
+#endif
     }
 
     private static IEnumerable<Feat> CreateDraconicExemplars()
@@ -211,11 +260,10 @@ public static class KoboldAncestryLoader
             {
                 sheet.AbilityBoostsFabric.AbilityFlaw = null;
                 sheet.AbilityBoostsFabric.AncestryBoosts =
-                    new List<AbilityBoost>
-                    {
-                        new FreeAbilityBoost(),
-                        new FreeAbilityBoost()
-                    };
+                [
+                    new FreeAbilityBoost(),
+                    new FreeAbilityBoost()
+                ];
             });
         yield return new HeritageSelectionFeat(ModManager.RegisterFeatName("Dragonscaled Kobold"),
                 "Your scales are especially colorful, possessing some of the same resistance a dragon possesses.",

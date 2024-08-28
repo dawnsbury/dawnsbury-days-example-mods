@@ -52,10 +52,15 @@ public static class PortalistClassLoader
 
     // We're adding one custom illustration, the rest of the pictures come from Dawnsbury Days core game so we can refer to them with IllustrationName:
     private static ModdedIllustration IllPortal = new ModdedIllustration("PortalistAssets/CreatePortal.png");
-    
+
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
+#if V3
+        ModManager.AssertV3();
+#else
+        ModManager.AssertV2();
+#endif
         foreach (var feat in CreateFeats())
         {
             ModManager.AddFeat(feat);
