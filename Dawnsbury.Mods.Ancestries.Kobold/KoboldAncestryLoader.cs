@@ -28,6 +28,10 @@ public static class KoboldAncestryLoader
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
+        #if V2
+        ModManager.AssertV2();
+        #endif 
+        
         KoboldTrait = ModManager.RegisterTrait(
             "Kobold",
             new TraitProperties("Kobold", true)
