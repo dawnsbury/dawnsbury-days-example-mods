@@ -152,6 +152,8 @@ It's somewhat complicated:
 
 If you're interested in doing this, you can read more in the readme file in the SteamWorkshopUploader folder in the main game folder, or you can reach out to me on [Discord](https://discord.gg/MnPp8z2epk) in the #mod-support channel.
 
+Also, to prevent yourself from accidentally making a mistake, use `ModManager.AssertV2()` and `ModManager.AssertV3()` respectively to make sure you're compiling against the correct binaries. Again the Kobold mod can serve as inspiration.
+
 ## Licensing
 
 Some parts of this repository are Open Game Content. See the individual folders for copyright notices and definitions of Open Game Content and Product Identity.
