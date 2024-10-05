@@ -18,6 +18,7 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Modding;
 using Dawnsbury.Core;
+using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
@@ -228,7 +229,7 @@ public static class KoboldAncestryLoader
                     var draconicExemplar = DraconicExemplarDescription.DraconicExemplarDescriptions[exemplarFeat.Name];
                     var resistanceValue = (creature.Level + 1) / 2;
                     creature.AddQEffect(new QEffect("Dragonscaled",
-                        "You have " + draconicExemplar.DamageKind.ToString().ToLower() + " resistance " +
+                        "You have " + draconicExemplar.DamageKind.HumanizeTitleCase2().ToLower() + " resistance " +
                         resistanceValue + ".")
                     {
                         StateCheck = (qfSelf) =>
