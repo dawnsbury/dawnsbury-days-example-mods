@@ -419,7 +419,6 @@ public static class PortalistClassLoader
             target = target.GetShuntoffTile(portalist);
         }
         portalist.TranslateTo(target);
-        portalist.AnimationData.ActualPosition = new Vector2(target.X, target.Y);
         portalist.AnimationData.ColorBlink(Color.White);
         portalist.Battle.SmartCenterAlways(target);
     }
