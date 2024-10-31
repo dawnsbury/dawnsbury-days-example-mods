@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Feats.InfiniteFeatsAndSpells;
