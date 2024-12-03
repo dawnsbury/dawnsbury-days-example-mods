@@ -299,11 +299,11 @@ public static class PortalistClassLoader
                         .WithActionCost(2)
                         .WithVariants(new[]
                         {
-                            new SpellVariant("Acid", "Acid", IllustrationName.ResistAcid),
-                            new SpellVariant("Cold", "Cold", IllustrationName.ResistCold),
-                            new SpellVariant("Electricity", "Electricity", IllustrationName.ResistElectricity),
-                            new SpellVariant("Fire", "Fire", IllustrationName.ResistFire),
-                            new SpellVariant("Sonic", "Sonic", IllustrationName.ResistSonic)
+                            new SpellVariant("Acid", "Acid", IllustrationName.ResistAcid).WithAdditionalTrait(Trait.Acid),
+                            new SpellVariant("Cold", "Cold", IllustrationName.ResistCold).WithAdditionalTrait(Trait.Cold),
+                            new SpellVariant("Electricity", "Electricity", IllustrationName.ResistElectricity).WithAdditionalTrait(Trait.Electricity),
+                            new SpellVariant("Fire", "Fire", IllustrationName.ResistFire).WithAdditionalTrait(Trait.Fire),
+                            new SpellVariant("Sonic", "Sonic", IllustrationName.ResistSonic).WithAdditionalTrait(Trait.Sonic)
                         })
                         .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                         {
