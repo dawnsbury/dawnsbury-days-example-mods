@@ -348,6 +348,7 @@ public static class KoboldAncestryLoader
                                     // Set up the actual effect:
                                     self.AddQEffect(new QEffect("Poisoned weapon", "Your next Strike with a piercing or slashing weapon deals extra persistent poison damage.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, self, IllustrationName.AcidSplash)
                                     {
+                                        CountsAsBeneficialToSource = true,
                                         AfterYouDealDamage = async (attacker, action, defender) =>
                                         {
                                             if (action.Item?.WeaponProperties?.DamageKind == DamageKind.Piercing || action.Item?.WeaponProperties?.DamageKind == DamageKind.Slashing)
