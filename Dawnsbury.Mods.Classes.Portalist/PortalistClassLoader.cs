@@ -39,7 +39,10 @@ public static class PortalistClassLoader
 
     // Static initializers run first and register all our custom enum members that we use from multiple places:
     
-    private static Trait TPortalist = ModManager.RegisterTrait("Portalist", new TraitProperties("Portalist", true));
+    private static Trait TPortalist = ModManager.RegisterTrait("Portalist", new TraitProperties("Portalist", true)
+    {
+        IsClassTrait = true
+    });
     
     private static QEffectId QAllyPortal = ModManager.RegisterEnumMember<QEffectId>("QAllyPortal");
     private static QEffectId QBoomerangPortal = ModManager.RegisterEnumMember<QEffectId>("QBoomerangPortal");
