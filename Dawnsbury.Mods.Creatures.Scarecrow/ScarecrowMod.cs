@@ -26,7 +26,8 @@ public class ScarecrowMod
             void AffectWithLeer(Creature scarecrow, Creature target)
             {
                 if (target.IsImmuneTo(Trait.Mental)) return;
-                var leerAction = CombatAction.CreateSimple(scarecrow, "Scarecrow's Leer");
+                var leerAction = CombatAction.CreateSimple(scarecrow, "Scarecrow's Leer", Trait.Aura, Trait.Emotion, Trait.Fear, Trait.Mental, Trait.Occult, Trait.Visual)
+                    .WithSavingThrow(new SavingThrow(Defense.Will, 18));
                 leerAction.Traits.Add(Trait.Fear);
                 leerAction.Traits.Add(Trait.Mental);
                 leerAction.Traits.Add(Trait.Emotion);
@@ -38,13 +39,13 @@ public class ScarecrowMod
                         target.AddQEffect(new QEffect() { Id = immuneToLeer });
                         break;
                     case CheckResult.Success:
-                        target.AddQEffect(QEffect.Frightened(1));
+                        target.AddQEffect(QEffect.Frightened(1).WithSourceAction(leerAction));
                         break;
                     case CheckResult.Failure:
-                        target.AddQEffect(QEffect.Frightened(2));
+                        target.AddQEffect(QEffect.Frightened(2).WithSourceAction(leerAction));
                         break;
                     case CheckResult.CriticalFailure:
-                        target.AddQEffect(QEffect.Frightened(3));
+                        target.AddQEffect(QEffect.Frightened(3).WithSourceAction(leerAction));
                         break;
                 }
                 target.AddQEffect(new QEffect()
