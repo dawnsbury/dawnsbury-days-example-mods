@@ -114,13 +114,16 @@ public static class KoboldAncestryLoader
             });
         yield return new KoboldAncestryFeat("Kobold Weapon Familiarity",
                 "You've trained with weapons ideal for subterranean efficiency.",
-                "You are trained with the crossbow and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.", 1)
-            .WithOnSheet(sheet =>
+                "You are trained with the crossbow, light pick, pick, and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.",
+                1)
+            .WithOnSheet(values =>
             {
-                sheet.SetProficiency(Trait.SimpleCrossbow, Proficiency.Trained);
-                sheet.SetProficiency(Trait.Spear, Proficiency.Trained);
-                sheet.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Martial), Trait.Simple);
-                sheet.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Advanced), Trait.Martial);
+                values.SetProficiency(Trait.SimpleCrossbow, Proficiency.Trained);
+                values.SetProficiency(Trait.Pick, Proficiency.Trained);
+                values.SetProficiency(Trait.LightPick, Proficiency.Trained);
+                values.SetProficiency(Trait.Spear, Proficiency.Trained);
+                values.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Martial), Trait.Simple);
+                values.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Advanced), Trait.Martial);
             });
         yield return new KoboldAncestryFeat("Kobold Breath",
                 "You channel your draconic exemplar's power into a gout of energy.",
@@ -156,17 +159,6 @@ public static class KoboldAncestryLoader
         yield return new KoboldAncestryFeat("Winglets", "You're among the few kobolds who grow a set of draconic wings later in life. The wings are initially small and weak; while not enough for full flight, a strong flap allows you to jump further.",
                 "You gain Powerful Leap as an extra feat. {i}(You can jump 5 feet farther with the Leap action.){/i}", 5)
             .WithOnSheet(values => values.GrantFeat(FeatName.PowerfulLeap));
-        yield return new KoboldAncestryFeat("Kobold Weapon Familiarity",
-                "You've trained with weapons ideal for subterranean efficiency.",
-                "You are trained with the crossbow, light pick, pick, and spear.",
-                1)
-            .WithOnSheet(values =>
-            {
-                values.SetProficiency(Trait.Crossbow, Proficiency.Trained);
-                values.SetProficiency(Trait.Pick, Proficiency.Trained);
-                values.SetProficiency(Trait.LightPick, Proficiency.Trained);
-                values.SetProficiency(Trait.Spear, Proficiency.Trained);
-            });
         yield return new KoboldAncestryFeat("Kobold Weapon Innovator",
                 "You've learned devious tactics with your kobold weapons.",
                 "Whenever you critically hit with a crossbow, light pick, pick or spear, you trigger the weapon's {tooltip:criteffect}critical specialization effect.{/}", 5)
@@ -248,7 +240,7 @@ public static class KoboldAncestryLoader
     {
         var featName = "Draconic exemplar: " + name;
         DraconicExemplarDescription.DraconicExemplarDescriptions.Add(featName, draconicExemplarDescription);
-        return new Feat(ModManager.RegisterFeatName(featName), flavorText, rulesText, new List<Trait>(), null);
+        return new Feat(ModManager.RegisterFeatName(featName), flavorText, rulesText, [], null);
     }
 
     private static IEnumerable<Feat> CreateKoboldHeritages()
@@ -323,7 +315,7 @@ public static class KoboldAncestryLoader
                             new CombatAction(kobold,
                                     IllustrationName.AcidSplash,
                                     "Tail Toxin",
-                                    new[] { Trait.Kobold, Trait.Poison },
+                                    [Trait.Kobold, Trait.Poison],
                                     "You apply your tail's venom to a piercing or slashing weapon. If your next Strike with that weapon before the end of your next turn hits and deals damage, you deal persistent poison damage equal to your level to the target.\n\nYou can only take this action once per day.",
                                     Target.Self()
                                         .WithAdditionalRestriction(self =>

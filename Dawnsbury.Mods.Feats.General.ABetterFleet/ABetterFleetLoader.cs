@@ -15,7 +15,7 @@ public class ABetterFleetLoader
         ModManager.AddFeat(new TrueFeat(FeatName.Fleet, 1,
                 "You {b}really{/b} move more quickly on foot.",
                 "Your Speed increases by {b}10 feet{/b}.",
-                new[] { Trait.General })
+                [Trait.General])
             .WithOnCreature(cr => cr.BaseSpeed += 2));
 
     }

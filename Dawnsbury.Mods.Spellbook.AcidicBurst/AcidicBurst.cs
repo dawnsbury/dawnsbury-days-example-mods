@@ -16,7 +16,7 @@ public class AcidicBurst
     {
         ModManager.RegisterNewSpell("AcidicBurst", 1, ((spellId, spellcaster, spellLevel, inCombat, spellInformation) =>
         {
-            return Spells.CreateModern(new ModdedIllustration("AcidicBurstAssets/AcidicBurst.png"), "Acidic Burst", new[] { Trait.Acid, Trait.Evocation, Trait.Arcane, Trait.Primal },
+            return Spells.CreateModern(new ModdedIllustration("AcidicBurstAssets/AcidicBurst.png"), "Acidic Burst", [Trait.Acid, Trait.Evocation, Trait.Arcane, Trait.Primal],
                     "You create a shell of acid around yourself that immediately bursts outward.",
                     "Deal " + S.HeightenedVariable(spellLevel * 2, 2) + "d6 acid damage to each creature in the area.",
                     Target.SelfExcludingEmanation(1), spellLevel, SpellSavingThrow.Basic(Defense.Reflex))

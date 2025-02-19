@@ -15,7 +15,7 @@ public class ImpossibleToughnessFeatLoader
                 1, 
                 "You were touched by the power of divinity and have become indestructible.",
                 "You have 20,000 extra Hit Points.",
-                new[] { Trait.General })
+                [Trait.General])
             .WithOnCreature(cr => cr.MaxHP += 20000));
     }
 }

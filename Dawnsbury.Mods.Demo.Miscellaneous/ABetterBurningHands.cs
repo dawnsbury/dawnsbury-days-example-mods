@@ -28,7 +28,7 @@ public static class ABetterBurningHands
             
             return Spells.CreateModern(IllustrationName.BurningHands,
                     "Burning Hands",
-                new[] { Trait.Evocation, Trait.Fire, Trait.Arcane, Trait.Primal },
+                    [Trait.Evocation, Trait.Fire, Trait.Arcane, Trait.Primal],
                     "Gouts of flame rush from your hands IN A SIXTY-FOOT CONE!!!",
                     "Deal " + S.HeightenedVariable(2 * level, 2) + "d6 fire damage to enemy creatures in the area only (allies are safe!).",
                     Target.Cone(12), // HA HA HA!! ALL WILL BURN!!!
