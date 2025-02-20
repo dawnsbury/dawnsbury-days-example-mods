@@ -141,7 +141,7 @@ public static class KoboldAncestryLoader
                         {
                             var kobold = qfSelf.Owner;
                             var dc = kobold.ClassOrSpellDC();
-                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath weapon", [],
+                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath weapon", [Trait.Basic],
                                     "{b}Area{/b} " + (draconicExemplar.IsCone ? "15-foot cone" : "30-foot line") + "\n{b}Saving throw{/b} basic Reflex\n\nDeal " + S.HeightenedVariable((kobold.Level + 1) / 2, 1) + "d4 " + draconicExemplar.DamageKind.HumanizeTitleCase2().ToLower() + " damage (basic DC " + dc + " Reflex save mitigates).\n\nThen you can't use Breath weapon again for 1d4 rounds.",
                                     draconicExemplar.IsCone ? Target.Cone(3) : Target.Line(6))
                                 .WithActionCost(2)
