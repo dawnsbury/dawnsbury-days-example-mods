@@ -19,6 +19,7 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.StatBlocks;
@@ -38,12 +39,12 @@ public static class PortalistClassLoader
     private const string CREATE_A_PORTAL = "Create a Portal";
 
     // Static initializers run first and register all our custom enum members that we use from multiple places:
-    
+
     private static Trait TPortalist = ModManager.RegisterTrait("Portalist", new TraitProperties("Portalist", true)
     {
         IsClassTrait = true
     });
-    
+
     private static QEffectId QAllyPortal = ModManager.RegisterEnumMember<QEffectId>("QAllyPortal");
     private static QEffectId QBoomerangPortal = ModManager.RegisterEnumMember<QEffectId>("QBoomerangPortal");
     private static QEffectId QAttackPortal = ModManager.RegisterEnumMember<QEffectId>("QAttackPortal");
@@ -52,6 +53,9 @@ public static class PortalistClassLoader
     private static QEffectId QElementalBlastPortal = ModManager.RegisterEnumMember<QEffectId>("QElementalBlastPortal");
     private static QEffectId QShieldingPortal = ModManager.RegisterEnumMember<QEffectId>("QShieldingPortal");
     private static QEffectId QSummoningPortal = ModManager.RegisterEnumMember<QEffectId>("QSummoningPortal");
+    private static QEffectId QUsedUpHealingPortal = ModManager.RegisterEnumMember<QEffectId>("QUsedUpHealingPortal");
+    private static QEffectId QSwervingPortal = ModManager.RegisterEnumMember<QEffectId>("QSwervingPortal");
+    private static QEffectId QChainedPortals = ModManager.RegisterEnumMember<QEffectId>("QChainedPortals");
 
     // We're adding one custom illustration, the rest of the pictures come from Dawnsbury Days core game so we can refer to them with IllustrationName:
     private static ModdedIllustration IllPortal = new ModdedIllustration("PortalistAssets/CreatePortal.png");
@@ -85,11 +89,25 @@ public static class PortalistClassLoader
 
 {b}At higher levels:{/b}
 {b}Level 2:{/b} Portalist feat
-{b}Level 3:{/b} General feat, skill increase, fast movement {i}(you gain a +10-foot status bonus to your Speed while you're wearing no armor or only light armor){/i}
-{b}Level 4:{/b} Portalist feat", null)
+{b}Level 3:{/b} General feat, skill increase, fast movement +10 feet {i}(you gain a +10-foot status bonus to your Speed while you're wearing no armor or only light armor){/i}
+{b}Level 4:{/b} Portalist feat
+{b}Level 5:{/b} Ability boosts, ancestry feat, skill increase, expert strikes {i}(You gain expert proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks. These weapons also trigger {tooltip:criteffect}critical specialization effects{/}.){/i}, ingenious movement {i}(ignore difficult terrain while wearing light or no armor){/i}, master in Perception
+{b}Level 6:{/b} Portalist feat
+{b}Level 7:{/b} Fast movement +15 feet, general feat, skill increase, weapon specialization {i}(you deal 2 additional damage with weapons and unarmed attacks in which you are an expert; this damage increases to 3 if you're a master, and to 4 if you're legendary){/i}, evasion {i}(Your proficiency rank for Reflex saves increases to master. When you roll a success on a Reflex save, you get a critical success instead.){/i}
+{b}Level 8:{/b} Portalist feat", null)
             .WithOnSheet(sheet =>
             {
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("PortalistFeat1", "Portalist feat", 1, (ft) => ft.HasTrait(TPortalist)));
+                sheet.AddAtLevel(5, values =>
+                {
+                    values.SetProficiency(Trait.Simple, Proficiency.Expert);
+                    values.SetProficiency(Trait.Rapier, Proficiency.Expert);
+                    values.SetProficiency(Trait.Shortsword, Proficiency.Expert);
+                    values.SetProficiency(Trait.Kukri, Proficiency.Expert);
+                    values.SetProficiency(Trait.Unarmed, Proficiency.Expert);
+                    values.SetProficiency(Trait.Perception, Proficiency.Master);
+                });
+                sheet.AddAtLevel(7, values => { values.SetProficiency(Trait.Reflex, Proficiency.Master); });
             })
             .WithOnCreature(creature =>
             {
@@ -98,10 +116,7 @@ public static class PortalistClassLoader
                     ProvideMainAction = qf =>
                     {
                         return Wrap(CreateNormalPortal(qf.Owner, IllPortal, "Standard Portal", "Teleport to a square you can see within range.")
-                            .WithEffectOnChosenTargets(async (spell, caster, targets) =>
-                            {
-                                PortalistTeleport(caster, targets.ChosenTile!);
-                            }));
+                            .WithEffectOnChosenTargets(async (spell, caster, targets) => { PortalistTeleport(caster, targets.ChosenTile!); }));
                     }
                 });
                 creature.AddQEffect(new QEffect("Quick", "You have +1 to initiative.")
@@ -110,17 +125,47 @@ public static class PortalistClassLoader
                 });
                 if (creature.Level >= 3)
                 {
-                    creature.AddQEffect(new QEffect("Fast movement", "You have +10 to Speed if you're not wearing armor or are wearing only light armor.")
+                    var speedBonus = creature.Level >= 7 ? 3 : 2;
+                    creature.AddQEffect(new QEffect($"Fast movement +{speedBonus * 5} feet", $"You have +{speedBonus * 5} to Speed if you're not wearing armor or are wearing only light armor.")
                     {
                         BonusToAllSpeeds = qf =>
                         {
                             if (!creature.Armor.WearsArmor || (creature.Armor.Item?.HasTrait(Trait.LightArmor) ?? false))
                             {
-                                return new Bonus(2, BonusType.Status, "Fast movement");
+                                return new Bonus(speedBonus, BonusType.Status, "Fast movement");
                             }
+
                             return null;
                         }
                     });
+                }
+
+                if (creature.Level >= 5)
+                {
+                    creature.AddQEffect(new QEffect("Expert strikes", $"Your unarmed attacks, simple weapons, and the rapier, kukri and shortsword trigger {{tooltip:criteffect}}critical specialization effects{{/}}.")
+                    {
+                        YouHaveCriticalSpecialization = (effect, item, action, defender) => item.HasTrait(Trait.Unarmed)
+                                                                                            || item.HasTrait(Trait.Shortsword)
+                                                                                            || item.HasTrait(Trait.Rapier)
+                                                                                            || item.HasTrait(Trait.Kukri)
+                                                                                            || item.HasTrait(Trait.Simple)
+                    });
+                    creature.AddQEffect(new QEffect("Ingenious movement", "You ignore difficult terrain while wearing no armor or only light armor.")
+                    {
+                        StateCheck = sc =>
+                        {
+                            if (!creature.Armor.WearsArmor || (creature.Armor.Item?.HasTrait(Trait.LightArmor) ?? false))
+                            {
+                                sc.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) { Id = QEffectId.IgnoresDifficultTerrain });
+                            }
+                        }
+                    });
+                }
+
+                if (creature.Level >= 7)
+                {
+                    creature.AddQEffect(QEffect.Evasion());
+                    creature.AddQEffect(QEffect.WeaponSpecialization());
                 }
             });
         // And here we define all the portalist class feats, its portal tricks. Generally, most of these tricks will use CreateNormalPortal to create the basics of
@@ -240,6 +285,7 @@ public static class PortalistClassLoader
                             })
                         });
                     }
+
                     return new SubmenuPossibility(IllustrationName.SteelShield, "Covering Portal")
                     {
                         Subsections =
@@ -249,11 +295,11 @@ public static class PortalistClassLoader
                                 Possibilities =
                                 [
                                     new ActionPossibility(new CombatAction(qff.Owner, IllustrationName.SteelShield, "Shield only", [TPortalist, Trait.Flourish, Trait.Basic],
-                                        "You gain a +2 circumstance bonus to your AC until you move or until the beginning of your next turn.", Target.Self())
+                                            "You gain a +2 circumstance bonus to your AC until you move or until the beginning of your next turn.", Target.Self())
                                         .WithSoundEffect(SfxName.RaiseShield)
                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => { AddShieldBonus(caster); })),
-                                    new ActionPossibility(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllustrationName.SteelShield, IllPortal), "Teleport and shield", 
-                                        "Teleport as normal, then you gain a +2 circumstance bonus to your AC until you move or until the beginning of your next turn.")
+                                    new ActionPossibility(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllustrationName.SteelShield, IllPortal), "Teleport and shield",
+                                            "Teleport as normal, then you gain a +2 circumstance bonus to your AC until you move or until the beginning of your next turn.")
                                         .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                                         {
                                             PortalistTeleport(caster, targets.ChosenTile!);
@@ -263,7 +309,6 @@ public static class PortalistClassLoader
                                 ]
                             }
                         ]
-
                     }.WithPossibilityGroup(CREATE_A_PORTAL);
                 };
             });
@@ -281,10 +326,7 @@ public static class PortalistClassLoader
                         .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                         {
                             PortalistTeleport(caster, targets.ChosenTile!);
-                            var portal = CreateNormalPortal(caster, IllPortal, "Second Portal", "Teleport again.").WithActionCost(0).WithEffectOnChosenTargets((async (action, creature, chosenTargets) =>
-                            {
-                                PortalistTeleport(creature, chosenTargets.ChosenTile!);
-                            }));
+                            var portal = CreateNormalPortal(caster, IllPortal, "Second Portal", "Teleport again.").WithActionCost(0).WithEffectOnChosenTargets((async (action, creature, chosenTargets) => { PortalistTeleport(creature, chosenTargets.ChosenTile!); }));
                             await caster.Battle.GameLoop.FullCast(portal);
                         })));
                 };
@@ -300,23 +342,19 @@ public static class PortalistClassLoader
                 {
                     return Wrap(CreateNormalPortal(qff.Owner, IllustrationName.EnergyEmanation, "Elemental Blast Portal", $"Create a portal as normal, and deal {S.HeightenedVariable((qff.Owner.Level + 1) / 2, 1)}d6 acid, electricity, fire, cold or sonic damage to each creature in the target square or adjacent to it (basic Reflex save against your class DC mitigates). Afterwards, you may choose to teleport there as normal.")
                         .WithActionCost(2)
-                        .WithVariants(new[]
-                        {
+                        .WithVariants([
                             new SpellVariant("Acid", "Acid", IllustrationName.ResistAcid).WithAdditionalTrait(Trait.Acid),
                             new SpellVariant("Cold", "Cold", IllustrationName.ResistCold).WithAdditionalTrait(Trait.Cold),
                             new SpellVariant("Electricity", "Electricity", IllustrationName.ResistElectricity).WithAdditionalTrait(Trait.Electricity),
                             new SpellVariant("Fire", "Fire", IllustrationName.ResistFire).WithAdditionalTrait(Trait.Fire),
                             new SpellVariant("Sonic", "Sonic", IllustrationName.ResistSonic).WithAdditionalTrait(Trait.Sonic)
-                        })
+                        ])
                         .WithEffectOnChosenTargets((async (spell, caster, targets) =>
                         {
                             var damageKind = spell.ChosenVariant!.ToEnergyDamageKind();
                             var targetTile = targets.ChosenTile!;
                             await CommonAnimations.CreateConeAnimation(caster.Battle, targetTile.ToCenterVector(), new Tile[] { targetTile }.Concat(targetTile.Neighbours.Select(e => e.Tile)).ToList(), 20, ProjectileKind.Cone, IllustrationName.EnergyEmanation);
-                            int dcClass = caster.PersistentCharacterSheet!.Class != null ? caster.Proficiencies.Get(caster.PersistentCharacterSheet.Class.ClassTrait).ToNumber(caster.Level)
-                                                                                           + caster.Abilities.Get(caster.Abilities.KeyAbility) + 10 : 10;
-                            int dcSpell = caster.Spellcasting != null ? caster.Proficiencies.Get(Trait.Spell).ToNumber(caster.Level) + 10 + caster.Spellcasting.Sources.Max(source => source.SpellcastingAbilityModifier) : 10;
-                            int dc = Math.Max(dcClass, dcSpell);
+                            int dc = caster.ClassOrSpellDC();
                             foreach (var target in targetTile.Neighbours.CreaturesPlusCreatureOnSelf)
                             {
                                 var save = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Reflex, dc);
@@ -372,13 +410,137 @@ public static class PortalistClassLoader
                 qf.Id = QSummoningPortal;
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", new[] { Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist, Trait.Basic }, "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", [Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist, Trait.Basic], "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
                         .WithActionCost(3)
                         .WithSoundEffect(SfxName.Summoning)
                         .WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= 1).Select(animal => new SpellVariant(animal.Name, animal.Name, animal.Illustration)).ToArray())
                         .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
                         .WithEffectOnChosenTargets((async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); })));
                 };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Healing Portal"), 2, "You direct your portal so that it passes through the Plane of Positive Energy.",
+                "Teleport as normal, except you also heal 1d8 HP per two character levels, rounded up. You can only use Healing Portal once per encounter.", [TPortalist, Trait.Flourish, Trait.Positive, Trait.Healing])
+            .WithActionCost(2)
+            .WithIllustration(IllustrationName.Heal)
+            .WithPermanentQEffect("Teleport as normal, except you also heal 1d8 HP per two character levels, rounded up. You can only use Healing Portal once per encounter.", qf =>
+            {
+                qf.ProvideMainAction = qff =>
+                {
+                    if (qff.Owner.HasEffect(QUsedUpHealingPortal)) return null;
+                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Heal), "Healing Portal", "{i}You direct your portal so that it passes through the Plane of Positive Energy.{/i}\n\nTeleport as normal, except you also heal 1d8 HP per two character levels, rounded up. You can only use Healing Portal once per encounter.")
+                        .WithAdditionalTraits(Trait.Positive, Trait.Healing)
+                        .WithPortalTargetChanges(tt => tt.WithAdditionalTargetingRequirement(
+                            (portalist, target) => portalist.Damage > 0
+                                ? Usability.Usable
+                                : Usability.NotUsable("You're already at full HP.")))
+                        .WithActionCost(2)
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) =>
+                        {
+                            Sfxs.Play(SfxName.Healing);
+                            caster.AddQEffect(new QEffect() { Id = QUsedUpHealingPortal });
+                            await caster.HealAsync((caster.Level + 1) / 2 + "d8", spell);
+                            PortalistTeleport(caster, targets.ChosenTile!);
+                        }));
+                };
+            });
+        
+        yield return new TrueFeat(ModManager.RegisterFeatName("Stealth Portal"), 6, "You camouflage both your portal and yourself, emerging from your portal unseen.",
+                "Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.", [TPortalist, Trait.Flourish, Trait.Illusion])
+            .WithActionCost(2)
+            .WithIllustration(IllustrationName.Invisibility)
+            .WithPermanentQEffect("Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.", qf =>
+            {
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Invisibility), "Stealth Portal", "Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.")
+                        .WithAdditionalTraits(Trait.Illusion)
+                        .WithActionCost(2)
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) =>
+                        {
+                            Sfxs.Play(SfxName.InvisibilityPoor);
+                            caster.AddQEffect(QEffect.Invisibility(false));
+                            PortalistTeleport(caster, targets.ChosenTile!);
+                            var hide = CommonCombatActions.CreateHide(caster).WithActionCost(0);
+                            await spell.Owner.Battle.GameLoop.FullCast(hide);
+                        }));
+                };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Transposition Portal"), 1,
+                "You create a bidirectional portal and pull a creature on the other hand back through.",
+                @"Choose an ally or an enemy within the range of your Speed.
+• If it's an ally, you swap positions.
+• If it's an enemy, it makes a Reflex save against your class DC. If it fails, you swap positions. If it succeeds, the enemy stays in place but you can choose to teleport adjacent to that enemy anyway.", [TPortalist, Trait.Flourish])
+            .WithActionCost(1)
+            .WithIllustration(IllustrationName.Shove)
+            .WithPermanentQEffect("Create a bidirectional portal and pull a creature on the other hand back through.", qf =>
+            {
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Transposition Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish], @"{i}You create a bidirectional portal and pull a creature on the other hand back through.{/i}
+
+Choose an ally or an enemy within the range of your Speed.
+• If it's an ally, you swap positions.
+• If it's an enemy, it makes a Reflex save against your class DC. If it fails, you swap positions. If it succeeds, the enemy stays in place but you can choose to teleport adjacent to that enemy anyway.",
+                            new CreatureTarget(RangeKind.Ranged, [
+                                new MaximumRangeCreatureTargetingRequirement(qff.Owner.Speed),
+                                new LegacyCreatureTargetingRequirement((a,d)=> DoesPortalHaveLineOfEffectTo(a, d.Occupies) ? Usability.Usable : Usability.NotUsableOnThisCreature("line-of-effect"))
+                            ], (_, _, _) => AIConstants.NEVER))
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr?.ClassOrSpellDC() ?? 10))
+                        .WithNoSaveFor((combatAction, target) => combatAction.Owner.FriendOf(target))
+                        .WithActionCost(1)
+                        .WithSoundEffect(SfxName.PhaseBolt)
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) =>
+                        {
+                            if (caster.FriendOf(target) || result <= CheckResult.Failure)
+                            {
+                                if (caster.Occupies.PrimaryOccupant == caster)
+                                {
+                                    var originalTargetLocation = target.Occupies;
+                                    caster.Occupies.PrimaryOccupant = null;
+                                    PortalistTeleport(target, caster.Occupies);
+                                    PortalistTeleport(caster, originalTargetLocation);
+                                }
+                            }
+                            else
+                            {
+                                if (await caster.AskForConfirmation(new SideBySideIllustration(IllPortal, IllustrationName.Shove), target + " saved against Transposition Portal and will stay in its place. Teleport adjacent to the target?", "Teleport", "Stay in place"))
+                                {
+                                    Sfxs.Play(SfxName.PhaseBolt);
+                                    PortalistTeleport(caster, target.Occupies);
+                                }
+                            }
+                        }));
+                };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Rising Portal"), 2,
+                "Standing up is for mundane folk. You can stand up by creating a portal underneath yourself and fall into an upright position.",
+                @"Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of opportunity.", [TPortalist, Trait.Flourish])
+            .WithActionCost(0)
+            .WithIllustration(IllustrationName.StandUp)
+            .WithPermanentQEffect("Stand up as a free action. This doesn't provoke attacks of opportunity.", qf =>
+            {
+                qf.ProvideContextualAction = qff =>
+                {
+                    if (!qff.Owner.HasEffect(QEffectId.Prone)) return null;
+                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Rising Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish, Trait.DoesNotProvoke], @"{i}Standing up is for mundane folk. You can stand up by creating a portal underneath yourself and fall into an upright position.{/i}
+
+Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of opportunity.", Target.Self())
+                        .WithActionCost(0)
+                        .WithSoundEffect(SfxName.PhaseBolt)
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) =>
+                        {
+                            caster.StandUp();
+                        }));
+                };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Swerving Portal"), 4,
+                "You can visualize a complex teleportation process in your mind's eye without directly seeing your destination.",
+                @"You don’t need line-of-effect or line-of-sight to the destination of your portals, as long as you know what the destination looks like {i}(you can teleport behind cover or walls, but not into fog-of-war).{/i}
+", [TPortalist, Trait.Flourish])
+            .WithActionCost(0)
+            .WithPermanentQEffect("You don’t need line-of-effect or line-of-sight to the destination of your portals.", qf =>
+            {
+                qf.Id = QSwervingPortal;
             });
     }
 
@@ -392,24 +554,29 @@ public static class PortalistClassLoader
     /// <param name="description">Full description of this action.</param>
     /// <returns></returns>
     private static CombatAction CreateNormalPortal(Creature portalist, Illustration illustration, string name, string description)
-    {   
+    {
         var range = portalist.Speed; // In Dawnsbury Days, ranges are indicated in squares, not feet
         var target = new TileTarget((caster, tile) =>
-            tile.IsFree
-            && caster.Occupies?.DistanceTo(tile) <= range 
-            && caster.Occupies.HasLineOfEffectToIgnoreLesser(tile) < CoverKind.Blocked, null)
+            tile.IsFree && caster.Occupies?.DistanceTo(tile) <= range && DoesPortalHaveLineOfEffectTo(caster, tile), null)
         {
-            OverriddenTargetLine = "{b}Range{/b} " + (range*5) + " feet" // TileTarget normally doesn't create target lines automatically, so we have to write one ourselves
+            OverriddenTargetLine = "{b}Range{/b} " + (range * 5) + " feet" // TileTarget normally doesn't create target lines automatically, so we have to write one ourselves
         };
-        List<Trait> traits = [TPortalist, Trait.Move, Trait.Flourish];
+        List<Trait> traits = [TPortalist, Trait.Move, Trait.Flourish, Trait.Conjuration, Trait.Teleportation];
         if (name != "Standard Portal")
-        { 
+        {
             // The Basic trait prevents the action from being shown in the OFFENSE section of the rules block, which is what we want because the 
             // action is already describes under the ABILITIES section:
             traits.Add(Trait.Basic);
         }
+
         return new CombatAction(portalist, illustration, name, traits.ToArray(), description, target)
             .WithSoundEffect(SfxName.PhaseBolt);
+    }
+
+    private static bool DoesPortalHaveLineOfEffectTo(Creature caster, Tile tile)
+    {
+        return caster.Occupies.HasLineOfEffectToIgnoreLesser(tile) < CoverKind.Blocked
+               || (caster.HasEffect(QSwervingPortal) && tile.FogOfWar == FogOfWar.Clear);
     }
 
     /// <summary>
@@ -421,6 +588,7 @@ public static class PortalistClassLoader
         {
             target = target.GetShuntoffTile(portalist);
         }
+
         portalist.TranslateTo(target);
         portalist.AnimationData.ColorBlink(Color.White);
         portalist.Battle.SmartCenterAlways(target);
@@ -450,9 +618,22 @@ public static class PortalistClassLoader
                         Possibilities = portalAction.Variants.Select(CreateVariantPossibility).Cast<Possibility>().ToList()
                     }
                 },
-               PossibilityGroup = CREATE_A_PORTAL
+                PossibilityGroup = CREATE_A_PORTAL
             };
         }
+
         return new ActionPossibility(portalAction).WithPossibilityGroup(CREATE_A_PORTAL);
+    }
+
+    public static CombatAction WithPortalTargetChanges(this CombatAction combatAction, Action<TileTarget> changes)
+    {
+        changes((TileTarget)combatAction.Target);
+        return combatAction;
+    }
+
+    public static CombatAction WithAdditionalTraits(this CombatAction combatAction, params Trait[] traits)
+    {
+        combatAction.Traits.AddRange(traits);
+        return combatAction;
     }
 }

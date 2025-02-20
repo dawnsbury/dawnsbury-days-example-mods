@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Dawnsbury.Auxiliary;
+﻿using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.Creatures.Parts;
