@@ -610,7 +610,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
                 };
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Retaliatory Portal"), 8, "If your first portal strike doesn't hit, your second will. You will not leave your enemy be.",
-                "After you take damage from an enemy melee attack, you can teleport to a square adjacent to that enemy as {icon:Reaction}a reaction, and make a melee Strike against that enemy.", [TPortalist, Trait.Flourish])
+                "After you take damage from an enemy melee attack, you can teleport to a square adjacent to that enemy as {icon:Reaction}a reaction, and make a melee Strike against that enemy.", [TPortalist])
             .WithActionCost(Constants.ACTION_COST_REACTION)
             .WithPermanentQEffect("After you take damage from an enemy melee attack, you can teleport to a square adjacent to that enemy as a reaction, and make a melee Strike against that enemy.", qf =>
             {
