@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -55,7 +56,6 @@ public static class PortalistClassLoader
     private static QEffectId QSummoningPortal = ModManager.RegisterEnumMember<QEffectId>("QSummoningPortal");
     private static QEffectId QUsedUpHealingPortal = ModManager.RegisterEnumMember<QEffectId>("QUsedUpHealingPortal");
     private static QEffectId QSwervingPortal = ModManager.RegisterEnumMember<QEffectId>("QSwervingPortal");
-    private static QEffectId QChainedPortals = ModManager.RegisterEnumMember<QEffectId>("QChainedPortals");
 
     // We're adding one custom illustration, the rest of the pictures come from Dawnsbury Days core game so we can refer to them with IllustrationName:
     private static ModdedIllustration IllPortal = new ModdedIllustration("PortalistAssets/CreatePortal.png");
@@ -402,7 +402,7 @@ public static class PortalistClassLoader
                 };
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Summoning Portal"), 4, "You don't cross your portal and instead use it to call in creatures of energy.",
-                "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", [TPortalist, Trait.Flourish])
+                "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.\n\nAt level 5, the maximum level of the summoned creatures is 2. At level 7, the maximum level is 3.", [TPortalist, Trait.Flourish])
             .WithActionCost(3)
             .WithIllustration(IllustrationName.SummonElemental)
             .WithPermanentQEffect("You can summon elementals as per the {i}summon elemental{/i} spell.", qf =>
@@ -410,10 +410,11 @@ public static class PortalistClassLoader
                 qf.Id = QSummoningPortal;
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", [Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist, Trait.Basic], "You summon an elemental creature whose level is 1 or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
+                    var elementalLevel = CommonSpellEffects.GetMaximumSummonLevel((qff.Owner.Level + 1)/2);
+                    return Wrap(new CombatAction(qff.Owner, IllustrationName.SummonElemental, "Summoning Portal", [Trait.Conjuration, Trait.Arcane, Trait.Primal, TPortalist, Trait.Basic], $"You summon an elemental creature whose level is {elementalLevel} or lower.\n\nImmediately when you open this portal and then once each turn when you Sustain the portal, you can take two actions as the summoned creature. If you don't Sustain the portal during a turn, the summoned creature will go away.", Target.RangedEmptyTileForSummoning(6))
                         .WithActionCost(3)
                         .WithSoundEffect(SfxName.Summoning)
-                        .WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= 1).Select(animal => new SpellVariant(animal.Name, animal.Name, animal.Illustration)).ToArray())
+                        .WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= elementalLevel).Select(animal => new SpellVariant(animal.Name, animal.Name, animal.Illustration)).ToArray())
                         .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
                         .WithEffectOnChosenTargets((async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); })));
                 };
@@ -427,7 +428,7 @@ public static class PortalistClassLoader
                 qf.ProvideMainAction = qff =>
                 {
                     if (qff.Owner.HasEffect(QUsedUpHealingPortal)) return null;
-                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Heal), "Healing Portal", "{i}You direct your portal so that it passes through the Plane of Positive Energy.{/i}\n\nTeleport as normal, except you also heal 1d8 HP per two character levels, rounded up. You can only use Healing Portal once per encounter.")
+                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Heal), "Healing Portal", $"{{i}}You direct your portal so that it passes through the Plane of Positive Energy.{{/i}}\n\nTeleport as normal, except you also heal {S.HeightenedVariable((qff.Owner.Level+1)/2, 1)}d8 HP. You can only use Healing Portal once per encounter.")
                         .WithAdditionalTraits(Trait.Positive, Trait.Healing)
                         .WithPortalTargetChanges(tt => tt.WithAdditionalTargetingRequirement(
                             (portalist, target) => portalist.Damage > 0
@@ -445,23 +446,21 @@ public static class PortalistClassLoader
             });
         
         yield return new TrueFeat(ModManager.RegisterFeatName("Stealth Portal"), 6, "You camouflage both your portal and yourself, emerging from your portal unseen.",
-                "Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.", [TPortalist, Trait.Flourish, Trait.Illusion])
+                "Teleport as normal, except you also become invisible as per the spell {i}invisibility.{/i}", [TPortalist, Trait.Flourish, Trait.Illusion])
             .WithActionCost(2)
             .WithIllustration(IllustrationName.Invisibility)
-            .WithPermanentQEffect("Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.", qf =>
+            .WithPermanentQEffect("Teleport as normal, except you also become invisible as per the spell {i}invisibility.{/i}", qf =>
             {
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Invisibility), "Stealth Portal", "Teleport as normal, except you also become invisible as per the spell {i}invisibility,{/i} and you immediately make a free Stealth check to become undetected.")
+                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Invisibility), "Stealth Portal", "Teleport as normal, except you also become invisible as per the spell {i}invisibility{/i}.")
                         .WithAdditionalTraits(Trait.Illusion)
                         .WithActionCost(2)
                         .WithEffectOnChosenTargets(async (spell, caster, targets) =>
                         {
                             Sfxs.Play(SfxName.InvisibilityPoor);
-                            caster.AddQEffect(QEffect.Invisibility(false));
+                            var invisibility = QEffect.Invisibility(false);
                             PortalistTeleport(caster, targets.ChosenTile!);
-                            var hide = CommonCombatActions.CreateHide(caster).WithActionCost(0);
-                            await spell.Owner.Battle.GameLoop.FullCast(hide);
                         }));
                 };
             });
@@ -476,7 +475,7 @@ public static class PortalistClassLoader
             {
                 qf.ProvideMainAction = qff =>
                 {
-                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Transposition Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish], @"{i}You create a bidirectional portal and pull a creature on the other hand back through.{/i}
+                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Transposition Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish, Trait.Basic], @"{i}You create a bidirectional portal and pull a creature on the other hand back through.{/i}
 
 Choose an ally or an enemy within the range of your Speed.
 • If it's an ally, you swap positions.
@@ -522,7 +521,7 @@ Choose an ally or an enemy within the range of your Speed.
                 qf.ProvideContextualAction = qff =>
                 {
                     if (!qff.Owner.HasEffect(QEffectId.Prone)) return null;
-                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Rising Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish, Trait.DoesNotProvoke], @"{i}Standing up is for mundane folk. You can stand up by creating a portal underneath yourself and fall into an upright position.{/i}
+                    return Wrap(new CombatAction(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Shove), "Rising Portal", [TPortalist, Trait.Teleportation, Trait.Move, Trait.Conjuration, Trait.Flourish, Trait.DoesNotProvoke, Trait.Basic], @"{i}Standing up is for mundane folk. You can stand up by creating a portal underneath yourself and fall into an upright position.{/i}
 
 Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of opportunity.", Target.Self())
                         .WithActionCost(0)
@@ -535,12 +534,108 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
             });
         yield return new TrueFeat(ModManager.RegisterFeatName("Swerving Portal"), 4,
                 "You can visualize a complex teleportation process in your mind's eye without directly seeing your destination.",
-                @"You don’t need line-of-effect or line-of-sight to the destination of your portals, as long as you know what the destination looks like {i}(you can teleport behind cover or walls, but not into fog-of-war).{/i}
+                @"You don't need line-of-effect or line-of-sight to the destination of your portals, as long as you know what the destination looks like {i}(you can teleport behind cover or walls, but not into fog-of-war).{/i}
 ", [TPortalist, Trait.Flourish])
-            .WithActionCost(0)
-            .WithPermanentQEffect("You don’t need line-of-effect or line-of-sight to the destination of your portals.", qf =>
+            .WithPermanentQEffect("You don't need line-of-effect or line-of-sight to the destination of your portals.", qf =>
             {
                 qf.Id = QSwervingPortal;
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Chained Portals"), 6,
+                "You hold on to the spark of interplanar travel for a big longer before it's gone.",
+                "Once per day, you may open up to two portals on the same turn, as though they weren't flourish actions. {i}(You do this by choosing 'Chain another portal' after opening the first portal.){/i}", [TPortalist])
+            .WithPermanentQEffect("Once per day, you may open up to two portals on the same turn, as though they weren't flourish actions.", qf =>
+            {
+                qf.ProvideContextualAction = qff =>
+                {
+                    var portalist = qff.Owner;
+                    if (portalist.PersistentUsedUpResources.UsedUpActions.Contains("ChainedPortals")) return null;
+                    if (portalist.Actions.ActionHistoryThisTurn.Any(action => action.HasTrait(TPortalist) && action.HasTrait(Trait.Flourish)))
+                    {
+                        return new ActionPossibility(new CombatAction(portalist, IllPortal, "Chain another portal", [TPortalist, Trait.Basic],
+                                "{b}Frequency{/b} once per day\n\nSuppress the flourish trait of the portal you opened previously this turn so that you can open one more portal this turn.",
+                                Target.Self())
+                            .WithActionCost(0)
+                            .WithSoundEffect(SfxName.MinorHealing)
+                            .WithEffectOnEachTarget(async (spell, caster, target, result) =>
+                            {
+                                caster.Actions.ActionHistoryThisTurn.ForEach(action =>
+                                {
+                                    if (action.HasTrait(TPortalist))
+                                    {
+                                        action.Traits.Remove(Trait.Flourish);
+                                    }
+                                });
+                                caster.PersistentUsedUpResources.UsedUpActions.Add("ChainedPortals");
+                            })
+                        ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_CONTEXTUAL_GET_RID_OF_DEBUFF);
+                    }
+                    return null;
+                };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Relentless Portal"), 8, "If your first portal strike doesn't hit, your second will. You will not leave your enemy be.",
+                "Teleport as normal, then make a melee attack against an adjacent enemy. If you miss but don't critically miss, teleport again into another square adjacent to the same enemy, and make another attack. If you do, your multiple attack penalty increases twice, but only after you make the second attack.", [TPortalist, Trait.Flourish])
+            .WithActionCost(1)
+            .WithIllustration(new SideBySideIllustration(IllPortal, IllustrationName.Swords))
+            .WithPermanentQEffect("Teleport as normal, then make a melee attack against an adjacent enemy. If you miss but don't critically miss, teleport again into another square adjacent to the same enemy, and make another attack. If you do, your multiple attack penalty increases twice, but only after you make the second attack.", qf =>
+            {
+                qf.ProvideMainAction = qff =>
+                {
+                    return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Swords), "Relentless Portal", "Teleport as normal, then make a melee attack against an adjacent enemy. If you miss but don't critically miss, teleport again into another square adjacent to the same enemy, and make another attack. If you do, your multiple attack penalty increases twice, but only after you make the second attack.")
+                        .WithAdditionalTraits(Trait.Illusion)
+                        .WithActionCost(1)
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) =>
+                        {
+                            PortalistTeleport(caster, targets.ChosenTile!);
+                            var lastStrikeBefore = caster.Actions.ActionHistoryThisTurn.LastOrDefault(act => act.HasTrait(Trait.Strike));
+                            await CommonCombatActions.StrikeAdjacentCreature(caster);
+                            var lastStrike = caster.Actions.ActionHistoryThisTurn.LastOrDefault(act => act.HasTrait(Trait.Strike));
+                            var strikeTarget = lastStrike?.ChosenTargets.ChosenCreature;
+                            if (lastStrike != null && lastStrike != lastStrikeBefore && lastStrike.CheckResult == CheckResult.Failure && strikeTarget != null)
+                            {
+                                var legalTiles = strikeTarget.Occupies.Neighbours.Select(edge => edge.Tile).Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                                if (legalTiles.Count > 0)
+                                {
+                                    var options = legalTiles.Select(tl => new TileOption(tl, "Make your second attack from this tile.", async () =>
+                                    {
+                                        Sfxs.Play(SfxName.PhaseBolt);
+                                        PortalistTeleport(caster, tl);
+                                        caster.Actions.AttackedThisManyTimesThisTurn--;
+                                        await CommonCombatActions.StrikeAdjacentCreature(caster, cr => cr == strikeTarget);
+                                        caster.Actions.AttackedThisManyTimesThisTurn++;
+                                    }, AIConstants.NEVER, true)).Cast<Option>().Concat([new PassViaButtonOption("Don't teleport again")]).ToList();
+                                    await caster.Battle.GameLoop.OfferOptions(caster, options, true);
+                                }
+                            }
+                        }));
+                };
+            });
+        yield return new TrueFeat(ModManager.RegisterFeatName("Retaliatory Portal"), 8, "If your first portal strike doesn't hit, your second will. You will not leave your enemy be.",
+                "After you take damage from an enemy melee attack, you can teleport to a square adjacent to that enemy as {icon:Reaction}a reaction, and make a melee Strike against that enemy.", [TPortalist, Trait.Flourish])
+            .WithActionCost(Constants.ACTION_COST_REACTION)
+            .WithPermanentQEffect("After you take damage from an enemy melee attack, you can teleport to a square adjacent to that enemy as a reaction, and make a melee Strike against that enemy.", qf =>
+            {
+                qf.AfterYouTakeDamage = async (qeffect, amount, kind, action, critical) =>
+                {
+                    var caster = qeffect.Owner;
+                    if (action != null && action.HasTrait(Trait.Melee) && await caster.AskToUseReaction(action.Owner + " dealt damage to you. Use Retaliatory Portal to Strike the enemy back?"))
+                    {
+                        var enemy = action.Owner;
+                        var legalTiles = enemy.Occupies.Neighbours.Select(edge => edge.Tile).Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                        if (legalTiles.Count > 0)
+                        {
+                            var options = legalTiles
+                                .Select(tl => new TileOption(tl, "Make your retaliatory attack from this tile.", async () =>
+                            {
+                                Sfxs.Play(SfxName.PhaseBolt);
+                                PortalistTeleport(caster, tl);
+                                await CommonCombatActions.StrikeAdjacentCreature(caster, cr => cr == enemy);
+                            }, AIConstants.NEVER, true))
+                                .Cast<Option>()
+                                .ToList();
+                            await caster.Battle.GameLoop.OfferOptions(caster, options, true);
+                        }
+                    }
+                };
             });
     }
 
