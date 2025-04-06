@@ -460,6 +460,7 @@ public static class PortalistClassLoader
                         {
                             Sfxs.Play(SfxName.InvisibilityPoor);
                             var invisibility = QEffect.Invisibility(false);
+                            caster.AddQEffect(invisibility);
                             PortalistTeleport(caster, targets.ChosenTile!);
                         }));
                 };
