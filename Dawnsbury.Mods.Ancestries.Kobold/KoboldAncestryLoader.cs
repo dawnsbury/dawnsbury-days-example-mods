@@ -338,17 +338,18 @@ public static class KoboldAncestryLoader
                                     self.PersistentUsedUpResources.UsedUpActions.Add("Tail Toxin");
 
                                     // Set up the actual effect:
-                                    self.AddQEffect(new QEffect("Poisoned weapon", "Your next Strike with a piercing or slashing weapon deals extra persistent poison damage.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, self, IllustrationName.AcidSplash)
+                                    QEffect tailToxinQEffect = new QEffect("Poisoned weapon", "Your next Strike with a piercing or slashing weapon deals extra persistent poison damage.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, self, IllustrationName.AcidSplash);
+                                    tailToxinQEffect.CannotExpireThisTurn = true;
+                                    tailToxinQEffect.CountsAsBeneficialToSource = true;
+                                    tailToxinQEffect.AfterYouDealDamage = async (attacker, action, defender) =>
                                     {
-                                        CountsAsBeneficialToSource = true,
-                                        AfterYouDealDamage = async (attacker, action, defender) =>
+                                        if (action.Item?.WeaponProperties?.DamageKind == DamageKind.Piercing || action.Item?.WeaponProperties?.DamageKind == DamageKind.Slashing)
                                         {
-                                            if (action.Item?.WeaponProperties?.DamageKind == DamageKind.Piercing || action.Item?.WeaponProperties?.DamageKind == DamageKind.Slashing)
-                                            {
-                                                defender.AddQEffect(QEffect.PersistentDamage(attacker.Level.ToString(), DamageKind.Poison));
-                                            }
+                                            defender.AddQEffect(QEffect.PersistentDamage(attacker.Level.ToString(), DamageKind.Poison));
+                                            tailToxinQEffect.ExpiresAt = ExpirationCondition.Immediately;
                                         }
-                                    });
+                                    };
+                                    self.AddQEffect(tailToxinQEffect);
                                 })
                         ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
                     }
