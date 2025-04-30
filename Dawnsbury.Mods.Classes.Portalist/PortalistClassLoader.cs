@@ -354,7 +354,7 @@ public static class PortalistClassLoader
                             var damageKind = spell.ChosenVariant!.ToEnergyDamageKind();
                             var targetTile = targets.ChosenTile!;
                             await CommonAnimations.CreateConeAnimation(caster.Battle, targetTile.ToCenterVector(), new Tile[] { targetTile }.Concat(targetTile.Neighbours.Select(e => e.Tile)).ToList(), 20, ProjectileKind.Cone, IllustrationName.EnergyEmanation);
-                            int dc = caster.ClassOrSpellDC();
+                            int dc = caster.ClassDC(TPortalist);
                             foreach (var target in targetTile.Neighbours.CreaturesPlusCreatureOnSelf)
                             {
                                 var save = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Reflex, dc);
@@ -485,7 +485,7 @@ Choose an ally or an enemy within the range of your Speed.
                                 new MaximumRangeCreatureTargetingRequirement(qff.Owner.Speed),
                                 new LegacyCreatureTargetingRequirement((a,d)=> DoesPortalHaveLineOfEffectTo(a, d.Occupies) ? Usability.Usable : Usability.NotUsableOnThisCreature("line-of-effect"))
                             ], (_, _, _) => AIConstants.NEVER))
-                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr?.ClassOrSpellDC() ?? 10))
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr?.ClassDC(TPortalist) ?? 10))
                         .WithNoSaveFor((combatAction, target) => combatAction.Owner.FriendOf(target))
                         .WithActionCost(1)
                         .WithSoundEffect(SfxName.PhaseBolt)
