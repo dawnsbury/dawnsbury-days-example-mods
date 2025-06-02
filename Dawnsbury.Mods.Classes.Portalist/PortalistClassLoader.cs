@@ -81,7 +81,7 @@ public static class PortalistClassLoader
                 "The portalist is the ultimate mobile combatant. Portalists open dimensional fissures and leap through them on battlefield to attack foes. Portalists are small scale teleporters, perfect for setting a flank or being in the right place at the right time. The portalist is not a wizard, but rather a lightly armored warrior who excels at speed and perfect positioning.", TPortalist,
                 new LimitedAbilityBoost(Ability.Strength, Ability.Dexterity),
                 8, [Trait.Fortitude, Trait.Will, Trait.Simple, Trait.Rapier, Trait.Shortsword, Trait.Kukri, Trait.Unarmed, Trait.UnarmoredDefense, Trait.LightArmor], [Trait.Perception, Trait.Reflex], 3,
-                @"{b}1. Standard portal.{/b} You can spend an action to teleport up to your speed to a square you can see. This is a flourish action that doesn't provoke attacks of opportunity.
+                @"{b}1. Standard portal.{/b} You can spend an action to teleport up to your Speed to a square you can see. This is a flourish action that doesn't provoke attacks of opportunity.
 
 {b}2. Quick.{/b} You gain a +1 status bonus to initiative rolls, if you're wearing no armor or light armor only.
 
