@@ -108,6 +108,7 @@ public static class PortalistClassLoader
                     values.SetProficiency(Trait.Perception, Proficiency.Master);
                 });
                 sheet.AddAtLevel(7, values => { values.SetProficiency(Trait.Reflex, Proficiency.Master); });
+                sheet.IncreaseProficiency(9, TPortalist, Proficiency.Expert);
             })
             .WithOnCreature(creature =>
             {
