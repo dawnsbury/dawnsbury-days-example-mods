@@ -149,7 +149,10 @@ public static class KoboldAncestryLoader
                                 .WithSoundEffect(SfxName.FireRay)
                                 .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, dc))
                                 .WithEffectOnEachTarget((async (spell, caster, target, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (caster.Level + 1) / 2 + "d4", draconicExemplar.DamageKind); }))
-                                .WithEffectOnChosenTargets((async (spell, caster, targets) => { caster.AddQEffect(QEffect.CannotUseForXRound("Breath Weapon", caster, R.Next(2, 5))); }))
+                                .WithEffectOnChosenTargets((async (spell, caster, targets) =>
+                                {
+                                    caster.AddQEffect(QEffect.CannotUseForXRound("Breath weapon", caster, R.Next(2, 5)));
+                                }))
                             ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
                         }
                     });
