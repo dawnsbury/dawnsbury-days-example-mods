@@ -20,13 +20,16 @@ using Dawnsbury.Modding;
 using Dawnsbury.Core;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Text;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
 public static class KoboldAncestryLoader
 {
     public static Trait KoboldTrait;
-    
+    public static FeatName KoboldBreathFeat = ModManager.RegisterFeatName("Kobold Breath");
+    public static FeatName DragonBreathFeat = ModManager.RegisterFeatName("KoboldDragon'sBreath", "Dragon's Breath");
+
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
@@ -125,9 +128,10 @@ public static class KoboldAncestryLoader
                 values.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Martial), Trait.Simple);
                 values.Proficiencies.AddProficiencyAdjustment(traits => traits.Contains(Trait.Kobold) && traits.Contains(Trait.Advanced), Trait.Martial);
             });
-        yield return new KoboldAncestryFeat("Kobold Breath",
+        yield return new TrueFeat(KoboldBreathFeat, 1,
                 "You channel your draconic exemplar's power into a gout of energy.",
-                "You gain a breath weapon attack that manifests as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against the higher of your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level and every 2 levels thereafter, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.", 1)
+                "You gain a breath weapon attack that manifests as a 30-foot line or a 15-foot cone, dealing 1d4 damage. Each creature in the area must attempt a basic Reflex saving throw against the higher of your class DC. You can't use this ability again for 1d4 rounds.\n\nAt 3rd level and every 2 levels thereafter, the damage increases by 1d4. The shape of the breath and the damage type match those of your draconic exemplar.",
+                [KoboldTrait], null)
             .WithActionCost(2)
             .WithOnCreature((sheet, creature) =>
             {
@@ -140,20 +144,48 @@ public static class KoboldAncestryLoader
                         ProvideMainAction = (qfSelf) =>
                         {
                             var kobold = qfSelf.Owner;
-                            var dc = kobold.ClassOrSpellDC();
-                            return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, "Breath weapon", [Trait.Basic],
-                                    "{b}Area{/b} " + (draconicExemplar.IsCone ? "15-foot cone" : "30-foot line") + "\n{b}Saving throw{/b} basic Reflex\n\nDeal " + S.HeightenedVariable((kobold.Level + 1) / 2, 1) + "d4 " + draconicExemplar.DamageKind.HumanizeTitleCase2().ToLower() + " damage (basic DC " + dc + " Reflex save mitigates).\n\nThen you can't use Breath weapon again for 1d4 rounds.",
-                                    draconicExemplar.IsCone ? Target.Cone(3) : Target.Line(6))
-                                .WithActionCost(2)
-                                .WithProjectileCone(IllustrationName.BreathWeapon, 15, ProjectileKind.Cone)
-                                .WithSoundEffect(SfxName.FireRay)
-                                .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, dc))
-                                .WithEffectOnEachTarget((async (spell, caster, target, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (caster.Level + 1) / 2 + "d4", draconicExemplar.DamageKind); }))
-                                .WithEffectOnChosenTargets((async (spell, caster, targets) =>
-                                {
-                                    caster.AddQEffect(QEffect.CannotUseForXRound("Breath weapon", caster, R.Next(2, 5)));
-                                }))
-                            ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
+                            if (kobold.QEffects.Any(qf => qf.Key == "Dragon Breath")) return null;
+                            int dc = kobold.ClassOrSpellDC();
+
+                            if (kobold.HasFeat(DragonBreathFeat))
+                            {
+                                var menu = new SubmenuPossibility(IllustrationName.BreathWeapon, "Breath Weapon");
+                                menu.PossibilityGroup = Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE;
+                                var section = new PossibilitySection("Breath Weapon");
+                                menu.Subsections.Add(section);
+                                section.AddPossibility(KoboldBreath("Kobold breath"));
+                                section.AddPossibility(KoboldBreath("Dragon breath", true));
+
+                                return menu;
+                            }
+
+                            return KoboldBreath("Breath weapon").WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ADDITIONAL_NATURAL_STRIKE);
+
+                            ActionPossibility KoboldBreath(string name, bool dragonBreath=false)
+                            {
+                                return new ActionPossibility(new CombatAction(kobold, IllustrationName.BreathWeapon, name, [Trait.Basic],
+                                        "{b}Area{/b} " + (draconicExemplar.IsCone ? $"{(dragonBreath ? 30 : 15)}-foot cone" : $"{(dragonBreath ? 60 : 30)}-foot line") + "\n{b}Saving throw{/b} basic Reflex\n\nDeal " +
+                                        S.HeightenedVariable((kobold.Level + 1) / 2, 1) + "d4 " + draconicExemplar.DamageKind.HumanizeTitleCase2().ToLower() +
+                                        " damage (basic DC " + dc + " Reflex save mitigates).\n\n" + (dragonBreath ? "Then you can't use Breath weapon again for the rest of the encounter." : "Then you can't use Breath weapon again for 1d4 rounds."),
+                                        draconicExemplar.IsCone ? Target.Cone(dragonBreath ? 6 : 3) : Target.Line(dragonBreath ? 12 : 6))
+                                    .WithActionCost(2)
+                                    .WithProjectileCone(IllustrationName.BreathWeapon, 15, ProjectileKind.Cone)
+                                    .WithSoundEffect(SfxName.FireRay)
+                                    .WithSavingThrow(new SavingThrow(draconicExemplar.SavingThrow, dc))
+                                    .WithEffectOnEachTarget(async (spell, caster, target, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (caster.Level + 1) / 2 + (dragonBreath ? "d8" : "d4"), draconicExemplar.DamageKind); })
+                                    .WithEffectOnChosenTargets(async (spell, caster, targets) =>
+                                    {
+                                        if (dragonBreath)
+                                            caster.AddQEffect(new QEffect() { Key = "Dragon Breath" });
+                                        else
+                                            caster.AddQEffect(new QEffect("Recharging Breath weapon", "This creature can't use Breath weapon until the value counts down to zero.", ExpirationCondition.CountsDownAtStartOfSourcesTurn, caster, IllustrationName.Recharging)
+                                            {
+                                                PreventTakingAction = (ca) => ca.Name == "Kobold breath" || ca.Name == "Breath weapon" || ca.Name == "Dragon breath" ? "This ability is recharging." : null,
+                                                Value = R.Next(2, 5),
+                                            });
+                                    })
+                                );
+                            }
                         }
                     });
                 }
@@ -206,6 +238,43 @@ public static class KoboldAncestryLoader
                     }
                 };
             });
+
+        // Level 9
+        yield return new KoboldAncestryFeat("Between the Scales",
+            "Underestimating you is a grave mistake, but it's one others keep making.",
+            "When you Strike a flat-footed creature using a melee weapon or unarmed attack that has the agile and finesse traits, it gains the backstabber trait.", 9)
+        .WithPermanentQEffect("When you Strike a flat-footed creature using a melee weapon or unarmed attack that has the agile and finesse traits, it gains the backstabber trait.", qf =>
+        {
+            qf.BeforeYourActiveRoll = async (self, strike, target) =>
+            {
+                if (!(strike != null && strike.Item != null && !strike.HasTrait(Trait.Backstabber) && strike.HasTrait(Trait.Strike) && strike.HasTrait(Trait.Finesse) && strike.HasTrait(Trait.Agile) && target.IsFlatFootedTo(self.Owner, strike))) return;
+
+                strike.Item.Traits.Add(Trait.Backstabber);
+
+                self.Owner.AddQEffect(new QEffect()
+                {
+                    ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction,
+                    WhenExpires = self => strike.Item.Traits.Remove(Trait.Backstabber),
+                });
+            };
+        });
+
+        yield return new TrueFeat(DragonBreathFeat, 9,
+            "You can put more effort into your Kobold Breath to channel greater draconic power, though it takes more out of you.",
+            "When you use Kobold Breath, you can increase the damage dice to d8s and increase the area to 60 feet for a line breath weapon or 30 feet for a cone. If you do, you can't use your Breath weapon again for the rest of the encounter.", [KoboldTrait], null)
+        .WithPermanentQEffect("Once per encounter you can boost the power of your Breath weapon, at the cost of losing the ability to use it again for the rest of the encounter.", qf => { })
+        .WithPrerequisite(KoboldBreathFeat, "Kobold breath");
+
+        yield return new KoboldAncestryFeat("Arcane Caster",
+            "Your inborn arcane power begins to manifest.",
+            "Choose one 1st-level spell and one 2nd-level spell from the arcane spell list. You can cast each of these as an arcane innate spells once per day.", 9)
+        .WithOnSheet(values =>
+        {
+            values.SetProficiency(Trait.Spell, Proficiency.Trained);
+            values.InnateSpells.GetOrCreate(KoboldTrait, () => new InnateSpells(Trait.Arcane));
+            values.AddSelectionOptionRightNow(new AddInnateSpellOption("KoboldArcaneCaster2ndLevelSpell", "Level 2 Arcane Spell", -1, KoboldTrait, 2, spell => spell.HasTrait(Trait.Arcane) && !spell.HasTrait(Trait.Cantrip)));
+            values.AddSelectionOptionRightNow(new AddInnateSpellOption("KoboldArcaneCaster1stLevelSpell", "Level 1 Arcane Spell", -1, KoboldTrait, 1, spell => spell.HasTrait(Trait.Arcane) && !spell.HasTrait(Trait.Cantrip)));
+        });
 #endif
     }
 
@@ -318,7 +387,7 @@ public static class KoboldAncestryLoader
                             new CombatAction(kobold,
                                     IllustrationName.AcidSplash,
                                     "Tail Toxin",
-                                    [Trait.Kobold, Trait.Poison],
+                                    [Trait.Kobold, Trait.Poison, Trait.Basic],
                                     "You apply your tail's venom to a piercing or slashing weapon. If your next Strike with that weapon before the end of your next turn hits and deals damage, you deal persistent poison damage equal to your level to the target.\n\nYou can only take this action once per day.",
                                     Target.Self()
                                         .WithAdditionalRestriction(self =>
