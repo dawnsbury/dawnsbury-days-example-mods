@@ -390,7 +390,7 @@ public static class PortalistClassLoader
                                     {
                                         if (await effect.Owner.Battle.AskToUseReaction(effect.Owner, "You're targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
                                         {
-                                            effect.Owner.Occupies.Overhead("deflected", Color.White, effect.Owner + " deflected the projectile with Shielding Portal.");
+                                            effect.Owner.Overhead("deflected", Color.White, effect.Owner + " deflected the projectile with Shielding Portal.");
                                             sb.AppendLine("Projectile deflected by Shielding Portal.");
                                             return true;
                                         }
