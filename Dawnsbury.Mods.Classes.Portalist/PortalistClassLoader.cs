@@ -654,7 +654,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
     {
         var range = portalist.Speed; // In Dawnsbury Days, ranges are indicated in squares, not feet
         var target = new TileTarget((caster, tile) =>
-            tile.IsFree && caster.Occupies?.DistanceTo(tile) <= range && DoesPortalHaveLineOfEffectTo(caster, tile), null)
+            tile.IsFree && caster.DistanceTo(tile) <= range && DoesPortalHaveLineOfEffectTo(caster, tile), null)
         {
             OverriddenTargetLine = "{b}Range{/b} " + (range * 5) + " feet" // TileTarget normally doesn't create target lines automatically, so we have to write one ourselves
         };
@@ -688,7 +688,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
 
         portalist.TranslateTo(target);
         portalist.AnimationData.ColorBlink(Color.White);
-        portalist.Battle.SmartCenterAlways(target);
+        portalist.Battle.SmartCenterTileAlways(target);
     }
 
     /// <summary>
