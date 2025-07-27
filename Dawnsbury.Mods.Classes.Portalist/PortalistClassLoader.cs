@@ -9,6 +9,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.Feats.Features;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CombatActions;
@@ -85,16 +86,16 @@ public static class PortalistClassLoader
 
 {b}2. Quick.{/b} You gain a +1 status bonus to initiative rolls, if you're wearing no armor or light armor only.
 
-{b}3. Portalist feat.{/b} You choose and get a portalist feat. Portalist feats often allow you to create more powerful or specialized portals instead of your standard portal. 
-
-{b}At higher levels:{/b}
-{b}Level 2:{/b} Portalist feat
-{b}Level 3:{/b} General feat, skill increase, fast movement +10 feet {i}(you gain a +10-foot status bonus to your Speed while you're wearing no armor or only light armor){/i}
-{b}Level 4:{/b} Portalist feat
-{b}Level 5:{/b} Ability boosts, ancestry feat, skill increase, expert strikes {i}(You gain expert proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks. These weapons also trigger {tooltip:criteffect}critical specialization effects{/}.){/i}, ingenious movement {i}(ignore difficult terrain while wearing light or no armor){/i}, master in Perception
-{b}Level 6:{/b} Portalist feat
-{b}Level 7:{/b} Fast movement +15 feet, general feat, skill increase, weapon specialization {i}(you deal 2 additional damage with weapons and unarmed attacks in which you are an expert; this damage increases to 3 if you're a master, and to 4 if you're legendary){/i}, evasion {i}(Your proficiency rank for Reflex saves increases to master. When you roll a success on a Reflex save, you get a critical success instead.){/i}
-{b}Level 8:{/b} Portalist feat", null)
+{b}3. Portalist feat.{/b} You choose and get a portalist feat. Portalist feats often allow you to create more powerful or specialized portals instead of your standard portal.", null)
+            .WithClassFeatures(features => features
+                .AddFeature(3, "Fast movement +10 feet", "You gain a +10-foot status bonus to your Speed while you're wearing no armor or only light armor.")
+                .AddFeature(5, "Expert strikes", "You gain expert proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks. These weapons also trigger {tooltip:criteffect}critical specialization effects{/}.")
+                .AddFeature(5, "Ingenious movement", "You ignore difficult terrain while wearing light or no armor.")
+                .AddFeature(5, WellKnownClassFeature.MasterInPerception)
+                .AddFeature(7, "Fast movement +15 feet")
+                .AddFeature(7, WellKnownClassFeature.WeaponSpecialization)
+                .AddFeature(7, WellKnownClassFeature.Evasion)
+                .AddFeature(9, WellKnownClassFeature.ExpertInClassDC))
             .WithOnSheet(sheet =>
             {
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("PortalistFeat1", "Portalist feat", 1, (ft) => ft.HasTrait(TPortalist)));
