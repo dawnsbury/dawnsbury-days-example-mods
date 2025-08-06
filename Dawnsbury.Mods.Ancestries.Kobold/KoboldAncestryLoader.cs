@@ -215,7 +215,7 @@ public static class KoboldAncestryLoader
                     int bestBonus = 0;
                     Creature? bestAlly = null;
                     int yourBaseBonus = you.Defenses.GetBaseValue(defense);
-                    foreach (var ally in you.Occupies.Neighbours.Creatures.Where(cr => cr.FriendOf(you) && cr.Alive))
+                    foreach (var ally in you.Neighbours.Creatures.Where(cr => cr.FriendOf(you) && cr.Alive))
                     {
                         int allyBaseBonus = ally.Defenses.GetBaseValue(defense);
                         int thisAllyOverbonus = allyBaseBonus - yourBaseBonus;
