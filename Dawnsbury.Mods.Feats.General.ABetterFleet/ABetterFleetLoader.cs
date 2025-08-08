@@ -12,6 +12,7 @@ public class ABetterFleetLoader
     {
         // This sample demonstrates how to replace an existing feat with a new one:
         AllFeats.All.RemoveAll(feat => feat.FeatName == FeatName.Fleet);
+        AllFeats.AllNamesSet.Remove(FeatName.Fleet.ToStringOrTechnical());
         ModManager.AddFeat(new TrueFeat(FeatName.Fleet, 1,
                 "You {b}really{/b} move more quickly on foot.",
                 "Your Speed increases by {b}10 feet{/b}.",
