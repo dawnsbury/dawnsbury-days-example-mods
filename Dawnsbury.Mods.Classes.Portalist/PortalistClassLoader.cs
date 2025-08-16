@@ -182,10 +182,10 @@ public static class PortalistClassLoader
                 qf.ProvideMainAction = qff =>
                 {
                     var action = CreateNormalPortal(qff.Owner, IllPortal, "Ally Portal", "Choose a target square, then choose an adjacent ally.\n\nYou teleport as normal, then you pull your ally through the portal to an adjacent square of your choice.");
-                    ((TileTarget)action.Target).AdditionalTargetingRequirement = (creature, tile) => creature.Occupies != null && creature.Occupies.Neighbours.Creatures.Any(cr => cr.FriendOf(creature)) ? Usability.Usable : Usability.NotUsable("You don't have an adjacent ally.");
+                    ((TileTarget)action.Target).AdditionalTargetingRequirement = (creature, tile) => creature.Neighbours.Creatures.Any(cr => cr.FriendOf(creature)) ? Usability.Usable : Usability.NotUsable("You don't have an adjacent ally.");
                     action.WithEffectOnChosenTargets((async (spell, caster, targets) =>
                     {
-                        var ally = await caster.Battle.AskToChooseACreature(caster, caster.Occupies.Neighbours.Creatures.Where(cr => cr.FriendOf(caster)), IllPortal, "Choose an ally to teleport alongside you.", "Teleport this ally.", "Cancel");
+                        var ally = await caster.Battle.AskToChooseACreature(caster, caster.Neighbours.Creatures.Where(cr => cr.FriendOf(caster)), IllPortal, "Choose an ally to teleport alongside you.", "Teleport this ally.", "Cancel");
                         if (ally == null)
                         {
                             spell.RevertRequested = true;
@@ -197,8 +197,7 @@ public static class PortalistClassLoader
                         var response = await caster.Battle.SendRequest(
                             new AdvancedRequest(caster,
                                 "Choose a square to teleport your ally to.",
-                                caster.Occupies.Neighbours
-                                    .Select(edge => edge.Tile)
+                                caster.Neighbours.Tiles
                                     .Where(tile => tile.IsTrulyGenuinelyFreeTo(ally))
                                     .Select(tile => new TileOption(tile, "Place this ally here.", async () => { chosenTarget = tile; }, AIConstants.NEVER, true))
                                     .Concat(new Option[] { new PassViaButtonOption("Do not teleport ally") })
@@ -595,7 +594,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
                             var strikeTarget = lastStrike?.ChosenTargets.ChosenCreature;
                             if (lastStrike != null && lastStrike != lastStrikeBefore && lastStrike.CheckResult == CheckResult.Failure && strikeTarget != null)
                             {
-                                var legalTiles = strikeTarget.Occupies.Neighbours.Select(edge => edge.Tile).Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                                var legalTiles = strikeTarget.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
                                 if (legalTiles.Count > 0)
                                 {
                                     var options = legalTiles.Select(tl => new TileOption(tl, "Make your second attack from this tile.", async () =>
@@ -623,7 +622,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
                     if (action != null && action.HasTrait(Trait.Melee) && await caster.AskToUseReaction(action.Owner + " dealt damage to you. Use Retaliatory Portal to Strike the enemy back?"))
                     {
                         var enemy = action.Owner;
-                        var legalTiles = enemy.Occupies.Neighbours.Select(edge => edge.Tile).Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                        var legalTiles = enemy.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
                         if (legalTiles.Count > 0)
                         {
                             var options = legalTiles
