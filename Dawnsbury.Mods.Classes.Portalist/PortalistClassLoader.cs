@@ -227,7 +227,7 @@ public static class PortalistClassLoader
                     var action = CreateNormalPortal(qff.Owner, IllustrationName.AerialBoomerang256, "Boomerang Portal", "Teleport to a square within range, then make a melee Strike, then teleport back.")
                         .WithEffectOnChosenTargets(async (spell, caster, targets) =>
                         {
-                            var originalPlace = caster.Occupies;
+                            var originalPlace = caster.Space.TopLeftTile;
                             PortalistTeleport(caster, targets.ChosenTile!);
                             await CommonCombatActions.StrikeAdjacentCreature(caster, null);
                             PortalistTeleport(caster, originalPlace);
@@ -484,7 +484,7 @@ Choose an ally or an enemy within the range of your Speed.
 • If it's an enemy, it makes a Reflex save against your class DC. If it fails, you swap positions. If it succeeds, the enemy stays in place but you can choose to teleport adjacent to that enemy anyway.",
                             new CreatureTarget(RangeKind.Ranged, [
                                 new MaximumRangeCreatureTargetingRequirement(qff.Owner.Speed),
-                                new LegacyCreatureTargetingRequirement((a,d)=> DoesPortalHaveLineOfEffectTo(a, d.Occupies) ? Usability.Usable : Usability.NotUsableOnThisCreature("line-of-effect"))
+                                new LegacyCreatureTargetingRequirement((a,d)=> DoesPortalHaveLineOfEffectTo(a, d) ? Usability.Usable : Usability.NotUsableOnThisCreature("line-of-effect"))
                             ], (_, _, _) => AIConstants.NEVER))
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr?.ClassDC(TPortalist) ?? 10))
                         .WithNoSaveFor((combatAction, target) => combatAction.Owner.FriendOf(target))
@@ -494,11 +494,14 @@ Choose an ally or an enemy within the range of your Speed.
                         {
                             if (caster.FriendOf(target) || result <= CheckResult.Failure)
                             {
-                                if (caster.Occupies.PrimaryOccupant == caster)
+                                if (caster.Space.Tiles.All(tile => tile.PrimaryOccupant == caster))
                                 {
-                                    var originalTargetLocation = target.Occupies;
-                                    caster.Occupies.PrimaryOccupant = null;
-                                    PortalistTeleport(target, caster.Occupies);
+                                    var originalTargetLocation = target.Space.CenterTile;
+                                    foreach (var originalSpaceTile in caster.Space.Tiles.ToList())
+                                    {
+                                        originalSpaceTile.PrimaryOccupant = null;
+                                    }
+                                    PortalistTeleport(target, caster.Space.CenterTile);
                                     PortalistTeleport(caster, originalTargetLocation);
                                 }
                             }
@@ -507,7 +510,7 @@ Choose an ally or an enemy within the range of your Speed.
                                 if (await caster.AskForConfirmation(new SideBySideIllustration(IllPortal, IllustrationName.Shove), target + " saved against Transposition Portal and will stay in its place. Teleport adjacent to the target?", "Teleport", "Stay in place"))
                                 {
                                     Sfxs.Play(SfxName.PhaseBolt);
-                                    PortalistTeleport(caster, target.Occupies);
+                                    PortalistTeleport(caster, target.Space.CenterTile);
                                 }
                             }
                         }));
@@ -594,7 +597,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
                             var strikeTarget = lastStrike?.ChosenTargets.ChosenCreature;
                             if (lastStrike != null && lastStrike != lastStrikeBefore && lastStrike.CheckResult == CheckResult.Failure && strikeTarget != null)
                             {
-                                var legalTiles = strikeTarget.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                                var legalTiles = strikeTarget.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && !caster.Space.Tiles.Contains(tile)).ToList();
                                 if (legalTiles.Count > 0)
                                 {
                                     var options = legalTiles.Select(tl => new TileOption(tl, "Make your second attack from this tile.", async () =>
@@ -622,7 +625,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
                     if (action != null && action.HasTrait(Trait.Melee) && await caster.AskToUseReaction(action.Owner + " dealt damage to you. Use Retaliatory Portal to Strike the enemy back?"))
                     {
                         var enemy = action.Owner;
-                        var legalTiles = enemy.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && tile != caster.Occupies).ToList();
+                        var legalTiles = enemy.Neighbours.Tiles.Where(tile => tile.IsTrulyGenuinelyFreeTo(caster) && !caster.Space.Tiles.Contains(tile)).ToList();
                         if (legalTiles.Count > 0)
                         {
                             var options = legalTiles
@@ -670,9 +673,14 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
             .WithSoundEffect(SfxName.PhaseBolt);
     }
 
+    private static bool DoesPortalHaveLineOfEffectTo(Creature caster, Creature targetCreature)
+    {
+        return caster.HasLineOfEffectToIgnoreLesser(targetCreature) < CoverKind.Blocked
+               || (caster.HasEffect(QSwervingPortal) && targetCreature.Space.TopLeftTile.FogOfWar == FogOfWar.Clear);
+    }
     private static bool DoesPortalHaveLineOfEffectTo(Creature caster, Tile tile)
     {
-        return caster.Occupies.HasLineOfEffectToIgnoreLesser(tile) < CoverKind.Blocked
+        return caster.HasLineOfEffectToIgnoreLesser(tile) < CoverKind.Blocked
                || (caster.HasEffect(QSwervingPortal) && tile.FogOfWar == FogOfWar.Clear);
     }
 
