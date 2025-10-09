@@ -121,6 +121,10 @@ A state-check proceeds like this:
 ## Modding in new creatures
 To create new creatures, check the file [ABOUT CREATURE MODS.txt](Dawnsbury.Mods.Creatures.Scarecrow/ABOUT CREATURE MODS.txt) in the example Scarecrow mod.
 
+## Additional documentation
+See also:
+* [Using rich text](Additional%20documentation/Using%20rich%20text.md)
+
 ## Troubleshooting
 
 **Missing async.** Some decompilers, such as the JetBrains decompiler, omit the keyword "async" in their decompiled async lambda methods. If you copy-paste such decompiled code into your project, it will either fail to compile (if it contains an `await` expression) or it will function incorrectly and produce a warning. To fix this, and as a general rule, if a method signature contains `Task` or `Task<something>` as the return value, you must declare that method as `async`. See [Async/await coroutine engine](#asyncawait-coroutine-engine).
