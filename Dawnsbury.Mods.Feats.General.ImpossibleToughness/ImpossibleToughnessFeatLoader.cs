@@ -14,7 +14,7 @@ public class ImpossibleToughnessFeatLoader
             new TrueFeat(ModManager.RegisterFeatName("Impossible Toughness"), // This name will both be serialized into save files, and display to the user
                 1, 
                 "You were touched by the power of divinity and have become indestructible.",
-                "You have 20,000 extra Hit Points.",
+                "You have 20,000 extra HP.",
                 [Trait.General])
             .WithOnCreature(cr => cr.MaxHP += 20000));
     }
