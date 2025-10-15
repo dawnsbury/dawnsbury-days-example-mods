@@ -388,7 +388,7 @@ public static class PortalistClassLoader
                                 {
                                     if (action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack))
                                     {
-                                        if (await effect.Owner.Battle.AskToUseReaction(effect.Owner, "You're targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
+                                        if (await effect.Owner.AskToUseReaction("You're targeted by " + action.Name + ". Use Shielding Portal to deflect this?"))
                                         {
                                             effect.Owner.Overhead("deflected", Color.White, effect.Owner + " deflected the projectile with Shielding Portal.");
                                             sb.AppendLine("Projectile deflected by Shielding Portal.");
