@@ -204,7 +204,8 @@ public static class PortalistClassLoader
                                     .ToList())
                             {
                                 TopBarText = "Choose a square to teleport your ally to.",
-                                TopBarIcon = IllPortal
+                                TopBarIcon = IllPortal,
+                                DisplacedCreature = ally
                             });
                         await response.ChosenOption.Action();
                         if (chosenTarget != null)
@@ -659,6 +660,7 @@ Stand up as {icon:FreeAction}a free action. This doesn't provoke attacks of oppo
         var target = new TileTarget((caster, tile) =>
             tile.IsFree && caster.DistanceTo(tile) <= range && DoesPortalHaveLineOfEffectTo(caster, tile), null)
         {
+            DisplacesCasterIntoTarget = true,
             OverriddenTargetLine = "{b}Range{/b} " + (range * 5) + " feet" // TileTarget normally doesn't create target lines automatically, so we have to write one ourselves
         };
         List<Trait> traits = [TPortalist, Trait.Move, Trait.Flourish, Trait.Conjuration, Trait.Teleportation];
