@@ -486,7 +486,7 @@ Choose an ally or an enemy within the range of your Speed.
                             new CreatureTarget(RangeKind.Ranged, [
                                 new MaximumRangeCreatureTargetingRequirement(qff.Owner.Speed),
                                 new LegacyCreatureTargetingRequirement((a,d)=> DoesPortalHaveLineOfEffectTo(a, d) ? Usability.Usable : Usability.NotUsableOnThisCreature("line-of-effect"))
-                            ], (_, _, _) => AIConstants.NEVER))
+                            ], null))
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr?.ClassDC(TPortalist) ?? 10))
                         .WithNoSaveFor((combatAction, target) => combatAction.Owner.FriendOf(target))
                         .WithActionCost(1)
