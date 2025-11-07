@@ -432,8 +432,8 @@ public static class PortalistClassLoader
                     if (qff.Owner.HasEffect(QUsedUpHealingPortal)) return null;
                     return Wrap(CreateNormalPortal(qff.Owner, new SideBySideIllustration(IllPortal, IllustrationName.Heal), "Healing Portal", $"{{i}}You direct your portal so that it passes through the Plane of Positive Energy.{{/i}}\n\nTeleport as normal, except you also heal {S.HeightenedVariable((qff.Owner.Level+1)/2, 1)}d8 HP. You can only use Healing Portal once per encounter.")
                         .WithAdditionalTraits(Trait.Positive, Trait.Healing)
-                        .WithPortalTargetChanges(tt => tt.WithAdditionalTargetingRequirement(
-                            (portalist, target) => portalist.Damage > 0
+                        .WithPortalTargetChanges(tt => tt.WithAdditionalSelfRequirement(
+                            (portalist) => portalist.Damage > 0
                                 ? Usability.Usable
                                 : Usability.NotUsable("You're already at full HP.")))
                         .WithActionCost(2)
