@@ -26,7 +26,7 @@ public class InfiniteFeatsAndSpellsModLoader
 
         LoadOrder.WhenFeatsBecomeLoaded += () =>
         {
-            foreach (var classSelectionFeat in AllFeats.All.OfType<ClassSelectionFeat>())
+            foreach (var classSelectionFeat in AllFeats.All.OfType<ClassSelectionFeat>().ToList())
             {
                 var technicalName = classSelectionFeat.FeatName.ToStringOrTechnical();
                 ModManager.AddFeat(new TrueFeat(ModManager.RegisterFeatName($"Additional{technicalName}Feats", $"Additional {classSelectionFeat.Name} Feats"), 1,
@@ -37,7 +37,7 @@ public class InfiniteFeatsAndSpellsModLoader
                         ).ToList())
                     .WithMultipleSelection());
             }
-            foreach (var ancestrySelectionFeat in AllFeats.All.OfType<AncestrySelectionFeat>())
+            foreach (var ancestrySelectionFeat in AllFeats.All.OfType<AncestrySelectionFeat>().ToList())
             {
                 var technicalName = ancestrySelectionFeat.FeatName.ToStringOrTechnical();
                 ModManager.AddFeat(new TrueFeat(ModManager.RegisterFeatName($"Additional{technicalName}Feats", $"Additional {ancestrySelectionFeat.Name} Feats"), 1,
