@@ -23,6 +23,12 @@ It may be useful for you to set up a post-build setup that will automatically pl
 
 Or, instead of creating a .NET class library project from scratch, you can copy the project `Dawnsbury.Mods.Feats.General.ImpossibleToughness` from this folder, which is a small "Hello, world"-style project, and start by modifying it. See the [Example mods](#example-mods) section just below.
 
+## Tutorial videos
+
+If you prefer to learn from video, you can watch the video tutorials I made:
+* [How to create code mods for Dawnsbury Days](https://www.youtube.com/watch?v=esumAsStuyw)
+* [How to use a map editor to create custom encounters for Dawnsbury Days](https://www.youtube.com/watch?v=cGWKDigVxF8)
+
 ## Example mods
 
 You can use the example mods in this folder as inspiration, or you can decompile the `Dawnsbury Days.dll` file in Data folder to check how built-in classes, feats and spells are implemented.
@@ -138,25 +144,6 @@ See also:
 If you want to share your mod with others, and your mod contains content that you only have permission to distribute through the Open Game License or the through the ORC License, you must distribute a copyright notice alongside your mod. To do so, create your own HTML file based on [the OGL template](Licensing/OGL%20copyright%20notice.html) or [the ORC template](Licensing/ORC%20copyright%20notice.html), and add that file into the root folder of your mod (just outside the folder CustomMods).
 
 See the subfolder "Steam Workshop Uploader" in the game main folder for technical instructions on how to share your Dawnsbury Days mods with others using the Steam Workshop.
-
-## Creating different versions for different Dawnsbury Days versions
-
-Dawnsbury Days has two main branches: the main branch, which most players are playing now; and the V3 version, which is an experimental prerelease branch that brings in levels 5–8 and other content that will become available when the expansion, The Profane Barrier, releases. You can switch to the V3 version by going to Steam properties of Dawnsbury Days and choosing Betas->V3.0.
-
-If you want to publish your mod, however, you should use the main branch and you should compile your code against the main branch binary of Dawnsbury Days. That way, everyone will be able to play your mod without the mod crashing.
-
-But if you want to prepare your mod for the new v3 version, you can create two different versions of it: you compile one against the main version of Dawnsbury Days, and one against the V3 version. You can look at the Dawnsbury.Mods.Ancestries.Kobold for inspiration on how to do this.
-
-It's somewhat complicated:
-* To create the V2 version, you must switch Steam to the main branch, set your code to be as for the V2 version, compile, and store your resultant assembly somewhere.
-* To create the V3 version, you must switch Steam to the V3.0 branch, set your code to be as for the V3 version, compile, and store your assembly somewhere.
-* Now place the first assembly into your workshop staging area in the folder CustomMods.
-* And place the second assembly into your workshop staging area in the folder CustomModsV3.
-* When you upload this into the Steam Workshop, the game will automatically select the DLL from the folder that corresponds to its version, so your mod will work the best with both versions of the base game.
-
-If you're interested in doing this, you can read more in the readme file in the SteamWorkshopUploader folder in the main game folder, or you can reach out to me on [Discord](https://discord.gg/MnPp8z2epk) in the #mod-support channel.
-
-Also, to prevent yourself from accidentally making a mistake, use `ModManager.AssertV2()` and `ModManager.AssertV3()` respectively to make sure you're compiling against the correct binaries. Again the Kobold mod can serve as inspiration.
 
 ## Licensing
 
