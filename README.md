@@ -125,7 +125,7 @@ A state-check proceeds like this:
 4. When no more state-check events apply during step 3, the state-check ends.
 
 ## Modding in new creatures
-To create new creatures, check the file [ABOUT CREATURE MODS.txt](Dawnsbury.Mods.Creatures.Scarecrow/ABOUT CREATURE MODS.txt) in the example Scarecrow mod.
+To create new creatures, check the file [ABOUT CREATURE MODS.txt](Dawnsbury.Mods.Creatures.Scarecrow/ABOUT%20CREATURE%20MODS.txt) in the example Scarecrow mod.
 
 ## Additional documentation
 See also:
