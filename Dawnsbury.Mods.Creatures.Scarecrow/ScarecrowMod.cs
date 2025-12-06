@@ -26,7 +26,7 @@ public class ScarecrowMod
             void AffectWithLeer(Creature scarecrow, Creature target)
             {
                 if (target.IsImmuneTo(Trait.Mental)) return;
-                var leerAction = CombatAction.CreateSimple(scarecrow, "Scarecrow's Leer", Trait.Aura, Trait.Emotion, Trait.Fear, Trait.Mental, Trait.Occult, Trait.Visual)
+                var leerAction = CombatAction.CreateSimple(scarecrow, "Scarecrow’s Leer", Trait.Aura, Trait.Emotion, Trait.Fear, Trait.Mental, Trait.Occult, Trait.Visual)
                     .WithSavingThrow(new SavingThrow(Defense.Will, 18));
                 leerAction.Traits.Add(Trait.Fear);
                 leerAction.Traits.Add(Trait.Mental);
@@ -55,7 +55,7 @@ public class ScarecrowMod
                 });
             }
             
-            var qfScarecrowLeer = new QEffect("Scarecrow's Leer", "Creatures within 40 feet of the scarecrow are affected by its aura of fear and must make a DC 18 Will save when they first enter the aura and at the beginning of each turn. On a critical success, they're unaffected and immune for the rest of the encounter. On a success, frightened 1. On a failure, frightened 2. On a critical failure, frightened 3.")
+            var qfScarecrowLeer = new QEffect("Scarecrow’s Leer", "Creatures within 40 feet of the scarecrow are affected by its aura of fear and must make a DC 18 Will save when they first enter the aura and at the beginning of each turn. On a critical success, they’re unaffected and immune for the rest of the encounter. On a success, frightened 1. On a failure, frightened 2. On a critical failure, frightened 3.")
             {
                 StateCheckWithVisibleChanges = async (leer) =>
                 {
@@ -97,7 +97,7 @@ public class ScarecrowMod
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Sickened))
                 .WithProficiency(Trait.Weapon, Proficiency.Trained)
                 .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claw of fear", "2d6", DamageKind.Bludgeoning))
-                .AddQEffect(new QEffect("Baleful Glow", "On the first round of combat, creatures that haven't acted yet are flat-footed to you.", ExpirationCondition.Never, null, IllustrationName.None)
+                .AddQEffect(new QEffect("Baleful Glow", "On the first round of combat, creatures that haven’t acted yet are flat-footed to you.", ExpirationCondition.Never, null, IllustrationName.None)
                 {
                     Innate = true,
                     StateCheck = (qfBalefulGlow) =>
@@ -114,7 +114,7 @@ public class ScarecrowMod
                         }
                     }
                 })
-                .AddQEffect(new QEffect("Clawing Fear", "The scarecrow's Strike deal an additional 1d6 mental damage to frightened creatures.")
+                .AddQEffect(new QEffect("Clawing Fear", "The scarecrow’s Strike deal an additional 1d6 mental damage to frightened creatures.")
                 {
                     AddExtraStrikeDamage = (action, defender) =>
                     {
