@@ -9,7 +9,7 @@
       </None>
     </ItemGroup>
     <Target Name="CopyIconToGameModsFolder" AfterTargets="Build">
-        <Copy SourceFiles="$(TargetDir)AcidicBurstAssets/AcidicBurst.png" DestinationFolder="../../Maingame/bin/$(Configuration)/win-x64/CustomMods/AcidicBurstAssets" />
-        <Copy SourceFiles="$(TargetDir)AcidicBurstAssets/AcidicBurstSfx.mp3" DestinationFolder="../../Maingame/bin/$(Configuration)/win-x64/CustomMods/AcidicBurstAssets" />
+        <Copy SourceFiles="$(TargetDir)AcidicBurstAssets/AcidicBurst.png" DestinationFolder="../../Maingame/bin/ReleaseSteam/win-x64/CustomMods/AcidicBurstAssets" />
+        <Copy SourceFiles="$(TargetDir)AcidicBurstAssets/AcidicBurstSfx.mp3" DestinationFolder="../../Maingame/bin/ReleaseSteam/win-x64/CustomMods/AcidicBurstAssets" />
     </Target>
 </Project>
