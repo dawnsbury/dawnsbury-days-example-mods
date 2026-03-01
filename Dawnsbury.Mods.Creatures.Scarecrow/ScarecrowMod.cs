@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
@@ -23,7 +24,7 @@ public class ScarecrowMod
         var immuneToLeer = ModManager.RegisterEnumMember<QEffectId>("ImmuneToLeer");
         ModManager.RegisterNewCreature("Scarecrow", (encounter) =>
         {
-            void AffectWithLeer(Creature scarecrow, Creature target)
+            async Task AffectWithLeerAsync(Creature scarecrow, Creature target)
             {
                 if (target.IsImmuneTo(Trait.Mental)) return;
                 var leerAction = CombatAction.CreateSimple(scarecrow, "Scarecrow’s Leer", Trait.Aura, Trait.Emotion, Trait.Fear, Trait.Mental, Trait.Occult, Trait.Visual)
@@ -32,7 +33,7 @@ public class ScarecrowMod
                 leerAction.Traits.Add(Trait.Mental);
                 leerAction.Traits.Add(Trait.Emotion);
                 leerAction.Traits.Add(Trait.Visual);
-                var result = CommonSpellEffects.RollSavingThrow(target, leerAction, Defense.Will, 18);
+                var result = await CommonSpellEffects.RollSavingThrowAsync(target, leerAction, Defense.Will, 18);
                 switch (result)
                 {
                     case CheckResult.CriticalSuccess:
@@ -63,7 +64,7 @@ public class ScarecrowMod
                     {
                         if (!creature.HasEffect(rolledAgainstLeerThisTurn) && !creature.HasEffect(immuneToLeer))
                         {
-                            AffectWithLeer(leer.Owner, creature);
+                            await AffectWithLeerAsync(leer.Owner, creature);
                         }
 
                         if (!creature.HasEffect(immuneToLeer))

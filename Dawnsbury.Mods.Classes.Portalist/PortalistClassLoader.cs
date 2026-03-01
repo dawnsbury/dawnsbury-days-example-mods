@@ -359,7 +359,7 @@ public static class PortalistClassLoader
                             int dc = caster.ClassDC(TPortalist);
                             foreach (var target in targetTile.Neighbours.CreaturesPlusCreatureOnSelf)
                             {
-                                var save = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Reflex, dc);
+                                var save = await CommonSpellEffects.RollSavingThrowAsync(target, spell, Defense.Reflex, dc);
                                 await CommonSpellEffects.DealBasicDamage(spell, caster, target, save, ((caster.Level + 1) / 2) + "d6", damageKind);
                             }
 
