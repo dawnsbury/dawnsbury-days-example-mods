@@ -87,7 +87,7 @@ public static class PortalistClassLoader
 {b}2. Quick.{/b} You gain a +1 status bonus to initiative rolls, if you’re wearing no armor or light armor only.
 
 {b}3. Portalist feat.{/b} You choose and get a portalist feat. Portalist feats often allow you to create more powerful or specialized portals instead of your standard portal.", null)
-            .WithClassFeatures(features => features
+            .WithEffectiveClassFeatures(features => features
                 .AddFeature(3, "Fast movement +10 feet", "You gain a +10-foot status bonus to your Speed while you’re wearing no armor or only light armor.")
                 .AddFeature(5, "Expert strikes", "You gain expert proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks. These weapons also trigger {tooltip:criteffect}critical specialization effects{/}.")
                 .AddFeature(5, "Ingenious movement", "You ignore difficult terrain while wearing light or no armor.")
@@ -106,10 +106,7 @@ public static class PortalistClassLoader
                     values.SetProficiency(Trait.Shortsword, Proficiency.Expert);
                     values.SetProficiency(Trait.Kukri, Proficiency.Expert);
                     values.SetProficiency(Trait.Unarmed, Proficiency.Expert);
-                    values.SetProficiency(Trait.Perception, Proficiency.Master);
                 });
-                sheet.AddAtLevel(7, values => { values.SetProficiency(Trait.Reflex, Proficiency.Master); });
-                sheet.IncreaseProficiency(9, TPortalist, Proficiency.Expert);
             })
             .WithOnCreature(creature =>
             {
@@ -162,12 +159,6 @@ public static class PortalistClassLoader
                             }
                         }
                     });
-                }
-
-                if (creature.Level >= 7)
-                {
-                    creature.AddQEffect(QEffect.Evasion());
-                    creature.AddQEffect(QEffect.WeaponSpecialization());
                 }
             });
         // And here we define all the portalist class feats, its portal tricks. Generally, most of these tricks will use CreateNormalPortal to create the basics of
