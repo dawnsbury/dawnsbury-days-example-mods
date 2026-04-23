@@ -16,4 +16,5 @@ Dawnsbury Days uses a custom rich text language for formatting text. Within any 
   * Spell with the context of a class: `{link:Fireball:Wizard}`
   * Spell at a specific spell level: `{link:Fireball:Wizard:4}`
     * If you don't specify a spell level, it's shown at the lowest possible level, or at your character's maximum spell level if it's a cantrip or focus spell.
-  * Feat: `{link:FeatTechnicalName}`
+  * Feat: `{link:FeatTechnicalName}`, e.g. `{link:DoubleSlice}`
+  * Item: `{link:ItemTechnicalName}`, e.g. `{link:MinorHealingPotion}`
