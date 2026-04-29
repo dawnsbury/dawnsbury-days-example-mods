@@ -21,6 +21,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Display.Controls.Statblocks;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
@@ -29,6 +30,7 @@ public static class KoboldAncestryLoader
     public static Trait KoboldTrait;
     public static FeatName KoboldBreathFeat = ModManager.RegisterFeatName("Kobold Breath");
     public static FeatName DragonBreathFeat = ModManager.RegisterFeatName("KoboldDragon'sBreath", "Dragon’s Breath");
+    public static FeatName KoboldWeaponFamiliarity = ModManager.RegisterFeatName("Kobold Weapon Familiarity");
 
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
@@ -115,10 +117,9 @@ public static class KoboldAncestryLoader
                     }
                 });
             });
-        yield return new KoboldAncestryFeat("Kobold Weapon Familiarity",
+        yield return new TrueFeat(KoboldWeaponFamiliarity, 1,
                 "You’ve trained with weapons ideal for subterranean efficiency.",
-                "You are trained with the crossbow, light pick, pick, and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.",
-                1)
+                "You are trained with the crossbow, light pick, pick, and spear. For the purpose of determining your proficiency, martial kobold weapons are simple weapons, and advanced kobold weapons are martial weapons.", [KoboldTrait])
             .WithOnSheet(values =>
             {
                 values.SetProficiency(Trait.SimpleCrossbow, Proficiency.Trained);
@@ -201,7 +202,8 @@ public static class KoboldAncestryLoader
             {
                 qf.YouHaveCriticalSpecialization = (effect, item, action, defender) 
                     => action.HasTrait(Trait.Crossbow) || action.HasTrait(Trait.Pick) || action.HasTrait(Trait.LightPick) || action.HasTrait(Trait.Spear);
-            });
+            })
+            .WithPrerequisite(KoboldWeaponFamiliarity, "Kobold Weapon Familiarity");
         yield return new KoboldAncestryFeat("Ally's Shelter",
                 "In stressful circumstances, you find strength in your allies’ example.",
                 "When you’re about to make a saving throw while adjacent to an ally, you may spend {icon:Reaction}a reaction. If you do, roll the save using your ally’s base saving throw bonus instead of your own.", 5)
@@ -275,6 +277,23 @@ public static class KoboldAncestryLoader
             values.AddSelectionOptionRightNow(new AddInnateSpellOption("KoboldArcaneCaster2ndLevelSpell", "Level 2 Arcane Spell", -1, KoboldTrait, 2, spell => spell.HasTrait(Trait.Arcane) && !spell.HasTrait(Trait.Cantrip)));
             values.AddSelectionOptionRightNow(new AddInnateSpellOption("KoboldArcaneCaster1stLevelSpell", "Level 1 Arcane Spell", -1, KoboldTrait, 1, spell => spell.HasTrait(Trait.Arcane) && !spell.HasTrait(Trait.Cantrip)));
         });
+
+        yield return new KoboldAncestryFeat("Kobold Weapon Expertise",
+            "You excel in the cunning and scrappy combat techniques your kind is so known for.",
+            "Whenever you gain a class feature that grants you expert or greater proficiency in a given weapon or weapons, you also gain that proficiency in the crossbow, greatpick, light pick, pick, and spear, as well as any kobold weapons in which you are trained.",
+            1)
+        .WithOnSheet(sheet =>
+        {
+            sheet.AtEndOfRecalculation = sheet =>
+            {
+                sheet.Proficiencies.Set(Trait.Crossbow, sheet.Proficiencies.GetHighestWeaponProficiency());
+                sheet.Proficiencies.Set(Trait.Pick, sheet.Proficiencies.GetHighestWeaponProficiency());
+                sheet.Proficiencies.Set(Trait.Spear, sheet.Proficiencies.GetHighestWeaponProficiency());
+                sheet.Proficiencies.Set(KoboldTrait, sheet.Proficiencies.GetHighestWeaponProficiency());
+                sheet.Proficiencies.Set(Trait.Kobold, sheet.Proficiencies.GetHighestWeaponProficiency());
+            };
+        })
+        .WithPrerequisite(KoboldWeaponFamiliarity, "Kobold Weapon Familiarity");
 #endif
     }
 
