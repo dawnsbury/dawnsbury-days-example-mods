@@ -10,11 +10,20 @@
         <!-- 1998: Dawnsbury Days uses many async methods, and you often won't want to make any await calls in them. -->
         <!-- NETSDK1206: An obscure .NET SDK warning caused by the fact that we're a .NET 8 code making use of .NET 6 MonoGame engine. This can be removed after MonoGame 3.9 releases. -->
         <!-- NU1901;NU1902;NU1903;NU1904: Warnings about security vulnerabilities caused by the use of older .NET libraries -->
-        <NoWarn>1998;NETSDK1206;NU1901;NU1902;NU1903;NU1904</NoWarn>
+        <!-- VSTHRD200: Demands that async methods use the Async suffix which Dawnsbury Days code doesn't always do. -->
+        <NoWarn>1998;NETSDK1206;NU1901;NU1902;NU1903;NU1904;VSTHRD200</NoWarn>
         <WarningsAsErrors>0618</WarningsAsErrors> <!-- Makes the "You're using obsolete stuff." warning into an error so that you're aware when Dawnsbury Days code is going to be changed. -->
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion> <!-- Improve edit-and-continue compatibility -->
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath> <!-- Removes the "win-x64" subfolder which isn't useful to us. -->
     </PropertyGroup>
+    <!-- The following NuGet package contains a Roslyn analyzer that prevents certain async-related classes of bugs, especially using async in a context where async is not permissible. Such mistakes
+      could otherwise lead to hard-to-find bugs. -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
     <!-- Dawnsbury Studios uses the following item and property group to interact with Dawnsbury Days source code. You don't have access to the source code so comment it out. -->
     <!--    Comment the following code out: -->
     <PropertyGroup>
