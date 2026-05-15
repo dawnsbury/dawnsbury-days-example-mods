@@ -4,6 +4,7 @@ Dawnsbury Days uses a custom rich text language for formatting text. Within any 
 
 * **Bold:** `{b}Bold{/b}`
 * **Italics:** `{i}Italics{/i}`
+* **Strike:** `{strike}This text will be crossed-out{/strike}`
 * **Color:** `{Blue}Blue text{/}` where "Blue" is an X11 name of a color. You can review the full list of colors and their names at https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.colors
 * **Icon:** Shows an inline picture
   * `{icon:YellowWarning}` displays a built-in image
@@ -11,7 +12,7 @@ Dawnsbury Days uses a custom rich text language for formatting text. Within any 
   * `{icon:customportrait:MyPortrait.png}` displays a custom portrait loaded by the user
 * **Tooltip:** `{tooltip:StarNight}Night of the Shooting Stars{/}` where "StarNight" is a keyword you registered on mod load using `ModManager.RegisterInlineTooltip`
 * **Link:** Shows a blue text that does something when you hover over it or click it
-  * External webpage link: `{link:https://dawnsbury.neocities.org}Homepage{/}`
+  * External webpage link: `{link:https://dawnsburydays.com}Homepage{/}`
   * Spell (only works in character editor screen): `{link:SpellTechnicalName}`
   * Spell with the context of a class: `{link:Fireball:Wizard}`
   * Spell at a specific spell level: `{link:Fireball:Wizard:4}`
