@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
@@ -21,16 +20,15 @@ using Dawnsbury.Core;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
-using Dawnsbury.Display.Controls.Statblocks;
 
 namespace Dawnsbury.Mods.Ancestries.Kobold;
 
 public static class KoboldAncestryLoader
 {
     public static Trait KoboldTrait;
-    public static FeatName KoboldBreathFeat = ModManager.RegisterFeatName("Kobold Breath");
-    public static FeatName DragonBreathFeat = ModManager.RegisterFeatName("KoboldDragon'sBreath", "Dragon’s Breath");
-    public static FeatName KoboldWeaponFamiliarity = ModManager.RegisterFeatName("Kobold Weapon Familiarity");
+    public static readonly FeatName KoboldBreathFeat = ModManager.RegisterFeatName("Kobold Breath");
+    public static readonly FeatName DragonBreathFeat = ModManager.RegisterFeatName("KoboldDragon'sBreath", "Dragon’s Breath");
+    public static readonly FeatName KoboldWeaponFamiliarity = ModManager.RegisterFeatName("Kobold Weapon Familiarity");
 
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
@@ -191,7 +189,7 @@ public static class KoboldAncestryLoader
                     });
                 }
             });
-#if V3
+
         yield return new KoboldAncestryFeat("Winglets", "You’re among the few kobolds who grow a set of draconic wings later in life. The wings are initially small and weak; while not enough for full flight, a strong flap allows you to jump further.",
                 "You gain Powerful Leap as an extra feat. {i}(You can jump 5 feet farther with the Leap action.){/i}", 5)
             .WithOnSheet(values => values.GrantFeat(FeatName.PowerfulLeap));
@@ -256,7 +254,7 @@ public static class KoboldAncestryLoader
                 self.Owner.AddQEffect(new QEffect()
                 {
                     ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction,
-                    WhenExpires = self => strike.Item.Traits.Remove(Trait.Backstabber),
+                    WhenExpires = _ => strike.Item.Traits.Remove(Trait.Backstabber),
                 });
             };
         });
@@ -280,21 +278,19 @@ public static class KoboldAncestryLoader
 
         yield return new KoboldAncestryFeat("Kobold Weapon Expertise",
             "You excel in the cunning and scrappy combat techniques your kind is so known for.",
-            "Whenever you gain a class feature that grants you expert or greater proficiency in a given weapon or weapons, you also gain that proficiency in the crossbow, greatpick, light pick, pick, and spear, as well as any kobold weapons in which you are trained.",
-            1)
+            "Whenever you gain a class feature that grants you expert or greater proficiency in any weapon, you also gain that proficiency in the crossbow, greatpick, light pick, pick, and spear, as well as any kobold weapons in which you are trained.",
+            13)
         .WithOnSheet(sheet =>
         {
-            sheet.AtEndOfRecalculation = sheet =>
-            {
-                sheet.Proficiencies.Set(Trait.Crossbow, sheet.Proficiencies.GetHighestWeaponProficiency());
-                sheet.Proficiencies.Set(Trait.Pick, sheet.Proficiencies.GetHighestWeaponProficiency());
-                sheet.Proficiencies.Set(Trait.Spear, sheet.Proficiencies.GetHighestWeaponProficiency());
-                sheet.Proficiencies.Set(KoboldTrait, sheet.Proficiencies.GetHighestWeaponProficiency());
-                sheet.Proficiencies.Set(Trait.Kobold, sheet.Proficiencies.GetHighestWeaponProficiency());
-            };
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([Trait.Crossbow]);
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([Trait.Greatpick]);
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([Trait.LightPick]);
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([Trait.Pick]);
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([Trait.Spear]);
+            sheet.Proficiencies.AutoupgradeAlongBestWeaponProficiency([KoboldTrait]);
         })
         .WithPrerequisite(KoboldWeaponFamiliarity, "Kobold Weapon Familiarity");
-#endif
+
     }
 
     private static IEnumerable<Feat> CreateDraconicExemplars()
