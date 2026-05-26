@@ -10,7 +10,10 @@ Dawnsbury Days uses a custom rich text language for formatting text. Within any 
   * `{icon:YellowWarning}` displays a built-in image
   * `{icon:modded:MyAssets\Portal.png}` displays a modded illustration
   * `{icon:customportrait:MyPortrait.png}` displays a custom portrait loaded by the user
-* **Tooltip:** `{tooltip:StarNight}Night of the Shooting Stars{/}` where "StarNight" is a keyword you registered on mod load using `ModManager.RegisterInlineTooltip`
+* **Tooltip:** Changes text color, bolds the text, and displays a tooltip when the player hovers over the text
+  * `{tooltip:StarNight}Night of the Shooting Stars{/}` where "StarNight" is a keyword you registered on mod load using `ModManager.RegisterInlineTooltip`
+  * `{r}flying{/r}` where "flying" is a rules term you or the base game registered using `ModManager.RegisterInlineTooltip`
+  * `{r:Alignment damage}evil damage{/r}` where "Alignment damage" is a rules term you or the base game registered using `ModManager.RegisterInlineTooltip`
 * **Link:** Shows a blue text that does something when you hover over it or click it
   * External webpage link: `{link:https://dawnsburydays.com}Homepage{/}`
   * Spell (only works in character editor screen): `{link:SpellTechnicalName}`
