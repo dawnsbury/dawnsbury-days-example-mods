@@ -16,9 +16,9 @@ Dawnsbury Days uses a custom rich text language for formatting text. Within any 
   * `{r:Alignment damage}evil damage{/r}` where "Alignment damage" is a rules term you or the base game registered using `ModManager.RegisterInlineTooltip`
 * **Link:** Shows a blue text that does something when you hover over it or click it
   * External webpage link: `{link:https://dawnsburydays.com}Homepage{/}`
-  * Spell (only works in character editor screen): `{link:SpellTechnicalName}`
-  * Spell with the context of a class: `{link:Fireball:Wizard}`
-  * Spell at a specific spell level: `{link:Fireball:Wizard:4}`
+  * Spell (only works in character editor screen): `{link:SpellTechnicalName}fireball{/}`
+  * Spell with the context of a class: `{link:Fireball:Wizard}fireball{/}`
+  * Spell at a specific spell level: `{link:Fireball:Wizard:4}fireball{/}`
     * If you don't specify a spell level, it's shown at the lowest possible level, or at your character's maximum spell level if it's a cantrip or focus spell.
-  * Feat: `{link:FeatTechnicalName}`, e.g. `{link:DoubleSlice}`
-  * Item: `{link:ItemTechnicalName}`, e.g. `{link:MinorHealingPotion}`
+  * Feat: `{link:FeatTechnicalName}`, e.g. `{link:DoubleSlice}Double Slice{/}`
+  * Item: `{link:ItemTechnicalName}`, e.g. `{link:MinorHealingPotion}a potion{/}`
