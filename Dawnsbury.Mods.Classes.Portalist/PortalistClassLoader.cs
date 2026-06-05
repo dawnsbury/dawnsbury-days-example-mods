@@ -599,7 +599,10 @@ Stand up as {icon:FreeAction}a free action. This doesn’t provoke attacks of op
                                         caster.Actions.AttackedThisManyTimesThisTurn--;
                                         await CommonCombatActions.StrikeAdjacentCreature(caster, cr => cr == strikeTarget);
                                         caster.Actions.AttackedThisManyTimesThisTurn++;
-                                    }, AIConstants.NEVER, true)).Cast<Option>().Concat([new PassViaButtonOption("Don’t teleport again")]).ToList();
+                                    }, AIConstants.NEVER, true)
+                                    {
+                                        ShowTooltipEvenForSingleTileOptionAlways = true
+                                    }).Cast<Option>().Concat([new PassViaButtonOption("Don’t teleport again")]).ToList();
                                     await caster.Battle.GameLoop.OfferOptions(caster, options, true);
                                 }
                             }
@@ -626,7 +629,10 @@ Stand up as {icon:FreeAction}a free action. This doesn’t provoke attacks of op
                                 Sfxs.Play(SfxName.PhaseBolt);
                                 PortalistTeleport(caster, tl);
                                 await CommonCombatActions.StrikeAdjacentCreature(caster, cr => cr == enemy);
-                            }, AIConstants.NEVER, true))
+                            }, AIConstants.NEVER, true)
+                                {
+                                    ShowTooltipEvenForSingleTileOptionAlways = true
+                                })
                                 .Cast<Option>()
                                 .ToList();
                             await caster.Battle.GameLoop.OfferOptions(caster, options, true);
