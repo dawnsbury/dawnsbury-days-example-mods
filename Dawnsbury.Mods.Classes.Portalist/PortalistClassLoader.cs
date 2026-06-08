@@ -87,10 +87,24 @@ public static class PortalistClassLoader
                 .AddFeature(5, "Expert strikes", "You gain expert proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks. These weapons also trigger {tooltip:criteffect}critical specialization effects{/}.")
                 .AddFeature(5, "Ingenious movement", "You ignore difficult terrain while wearing light or no armor.")
                 .AddFeature(5, WellKnownClassFeature.MasterInPerception)
+                .AddFeature(5, WellKnownClassFeature.ExpertInWill)
                 .AddFeature(7, "Fast movement +15 feet")
                 .AddFeature(7, WellKnownClassFeature.WeaponSpecialization)
                 .AddFeature(7, WellKnownClassFeature.Evasion)
-                .AddFeature(9, WellKnownClassFeature.ExpertInClassDC))
+                .AddFeature(9, WellKnownClassFeature.ExpertInClassDC)
+                .AddFeature(9, WellKnownClassFeature.ExpertInFortitude)
+                .AddFeature(11, WellKnownClassFeature.ExpertInUnarmoredDefenseAndLightArmor)
+                .AddFeature(11, "Fast movement +20 feet")
+                .AddFeature(13, WellKnownClassFeature.ImprovedEvasion)
+                .AddFeature(13, WellKnownClassFeature.LegendaryInPerception)
+                .AddFeature(13, "Master strikes", "You gain master proficiency in simple weapons as well as the rapier, shortsword, kukri, and unarmed attacks.")
+                .AddFeature(15, WellKnownClassFeature.MasterInClassDC)
+                .AddFeature(15, WellKnownClassFeature.GreaterWeaponSpecialization)
+                .AddFeature(15, "Fast movement +25 feet")
+                .AddFeature(17, WellKnownClassFeature.Resolve)
+                .AddFeature(17, WellKnownClassFeature.MasterInUnarmoredDefenseAndLightArmor)
+                .AddFeature(19, "Fast movement +30 feet")
+            )
             .WithOnSheet(sheet =>
             {
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("PortalistFeat1", "Portalist feat", 1, (ft) => ft.HasTrait(TPortalist)));
@@ -101,6 +115,14 @@ public static class PortalistClassLoader
                     values.SetProficiency(Trait.Shortsword, Proficiency.Expert);
                     values.SetProficiency(Trait.Kukri, Proficiency.Expert);
                     values.SetProficiency(Trait.Unarmed, Proficiency.Expert);
+                });
+                sheet.AddAtLevel(13, values =>
+                {
+                    values.SetProficiency(Trait.Simple, Proficiency.Master);
+                    values.SetProficiency(Trait.Rapier, Proficiency.Master);
+                    values.SetProficiency(Trait.Shortsword, Proficiency.Master);
+                    values.SetProficiency(Trait.Kukri, Proficiency.Master);
+                    values.SetProficiency(Trait.Unarmed, Proficiency.Master);
                 });
             })
             .WithOnCreature(creature =>
@@ -119,8 +141,8 @@ public static class PortalistClassLoader
                 });
                 if (creature.Level >= 3)
                 {
-                    var speedBonus = creature.Level >= 7 ? 3 : 2;
-                    creature.AddQEffect(new QEffect($"Fast movement +{speedBonus * 5} feet", $"You have +{speedBonus * 5} to Speed if you’re not wearing armor or are wearing only light armor.")
+                    var speedBonus = 2 + (creature.Level - 3) / 4;
+                    creature.AddQEffect(new QEffect($"Fast movement +{speedBonus * 5} feet", $"You have +{speedBonus * 5}-foot to Speed if you’re not wearing armor or are wearing only light armor.")
                     {
                         BonusToAllSpeeds = qf =>
                         {
@@ -144,6 +166,7 @@ public static class PortalistClassLoader
                                                                                             || item.HasTrait(Trait.Kukri)
                                                                                             || item.HasTrait(Trait.Simple)
                     });
+                    
                     creature.AddQEffect(new QEffect("Ingenious movement", "You ignore difficult terrain while wearing no armor or only light armor.")
                     {
                         StateCheck = sc =>
