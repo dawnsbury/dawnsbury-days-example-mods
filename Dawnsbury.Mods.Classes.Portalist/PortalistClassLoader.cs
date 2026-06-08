@@ -103,6 +103,7 @@ public static class PortalistClassLoader
                 .AddFeature(15, "Fast movement +25 feet")
                 .AddFeature(17, WellKnownClassFeature.Resolve)
                 .AddFeature(17, WellKnownClassFeature.MasterInUnarmoredDefenseAndLightArmor)
+                .AddFeature(19, WellKnownClassFeature.LegendaryInClassDC)
                 .AddFeature(19, "Fast movement +30 feet")
             )
             .WithOnSheet(sheet =>
