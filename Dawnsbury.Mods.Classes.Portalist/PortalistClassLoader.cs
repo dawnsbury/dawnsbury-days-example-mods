@@ -64,11 +64,6 @@ public static class PortalistClassLoader
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
-#if V3
-        ModManager.AssertV3();
-#else
-        ModManager.AssertV2();
-#endif
         foreach (var feat in CreateFeats())
         {
             ModManager.AddFeat(feat);

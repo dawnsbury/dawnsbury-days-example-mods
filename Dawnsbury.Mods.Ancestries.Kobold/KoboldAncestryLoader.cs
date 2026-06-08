@@ -33,12 +33,6 @@ public static class KoboldAncestryLoader
     [DawnsburyDaysModMainMethod]
     public static void LoadMod()
     {
-#if V3
-        ModManager.AssertV3();
-#else
-        ModManager.AssertV2();
-#endif
-        
         KoboldTrait = ModManager.RegisterTrait(
             "Kobold",
             new TraitProperties("Kobold", true)
@@ -51,7 +45,7 @@ public static class KoboldAncestryLoader
         ModManager.AddFeat(new AncestrySelectionFeat(
                 ModManager.RegisterFeatName("ModKobold", "Kobold"), // We can't use the name "Kobold" because that's already that name of our trait, and the feat technical name and the trait technical name would conflict.
                 "Every kobold knows that their slight frame belies true, mighty draconic power. They are ingenious crafters and devoted allies within their warrens, but those who trespass into their territory find them to be inspired skirmishers, especially when they have the backing of a draconic sorcerer or true dragon overlord. However, these reptilian opportunists prove happy to cooperate with other humanoids when it’s to their benefit, combining caution and cunning to make their fortunes in the wider world.",
-                [Trait.Humanoid, KoboldTrait],
+                [Trait.Humanoid, KoboldTrait, Trait.Small],
                 6,
                 5,
                 [
@@ -190,8 +184,9 @@ public static class KoboldAncestryLoader
                 }
             });
 
-        yield return new KoboldAncestryFeat("Winglets", "You’re among the few kobolds who grow a set of draconic wings later in life. The wings are initially small and weak; while not enough for full flight, a strong flap allows you to jump further.",
-                "You gain Powerful Leap as an extra feat. {i}(You can jump 5 feet farther with the Leap action.){/i}", 5)
+        var winglets = ModManager.RegisterFeatName("Winglets");
+        yield return new TrueFeat(winglets, 5, "You’re among the few kobolds who grow a set of draconic wings later in life. The wings are initially small and weak; while not enough for full flight, a strong flap allows you to jump further.",
+                "You gain Powerful Leap as an extra feat. {i}(You can jump 5 feet farther with the Leap action.){/i}", [KoboldTrait])
             .WithOnSheet(values => values.GrantFeat(FeatName.PowerfulLeap));
         yield return new KoboldAncestryFeat("Kobold Weapon Innovator",
                 "You’ve learned devious tactics with your kobold weapons.",
@@ -291,6 +286,12 @@ public static class KoboldAncestryLoader
         })
         .WithPrerequisite(KoboldWeaponFamiliarity, "Kobold Weapon Familiarity");
 
+        yield return new KoboldAncestryFeat("Kobold Flight",
+                    "Your draconic wings have grown large and strong enough for flight.",
+                    "You have {r}flying{/r}.", 13)
+                .WithPrerequisite(winglets, "Winglets")
+                .WithOnCreature(creature => creature.AddQEffect(QEffect.Flying()))
+            ;
     }
 
     private static IEnumerable<Feat> CreateDraconicExemplars()
@@ -402,7 +403,7 @@ public static class KoboldAncestryLoader
                             new CombatAction(kobold,
                                     IllustrationName.AcidSplash,
                                     "Tail Toxin",
-                                    [Trait.Kobold, Trait.Poison, Trait.Basic],
+                                    [KoboldTrait, Trait.Poison, Trait.Basic],
                                     "You apply your tail’s venom to a piercing or slashing weapon. If your next Strike with that weapon before the end of your next turn hits and deals damage, you deal persistent poison damage equal to your level to the target.\n\nYou can only take this action once per day.",
                                     Target.Self()
                                         .WithAdditionalRestriction(self =>
